@@ -30,9 +30,6 @@ const MyProfileScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{t('freundebuch.myProfile')}</Text>
-        <TouchableOpacity>
-          <Ionicons name="settings-outline" size={24} color="#333" />
-        </TouchableOpacity>
       </View>
 
       <View style={styles.profileCard}>
