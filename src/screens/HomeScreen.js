@@ -1,15 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Alert, Animated, Easing, Dimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { auth } from '../context/firebaseConfig';
 import { signInAnonymously } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
 const HomeScreen = ({ navigation }) => {
   const { t, i18n } = useTranslation();
   const [isAdmin, setIsAdmin] = useState(false);
   const [setupTaps, setSetupTaps] = useState(0);
+  
+  // Easter Egg State
+  const [catTaps, setCatTaps] = useState(0);
+  const [isCatRunning, setIsCatRunning] = useState(false);
+  const catPosition = useRef(new Animated.Value(-100)).current;
 
   useEffect(() => {
     checkAdminStatus();
@@ -92,14 +99,12 @@ const HomeScreen = ({ navigation }) => {
       const myData = await AsyncStorage.getItem('my_profile');
       if (myData) {
         const parsed = JSON.parse(myData);
-        // Check if all crucial fields are filled
         if (parsed.name && parsed.age && parsed.hobby && parsed.food && parsed.dream) {
           navigation.navigate('SecretUnlock');
           return;
         }
       }
       
-      // If data is missing or not complete
       Alert.alert(
         t('secretChat.profileRequired'),
         t('secretChat.profileRequiredMsg'),
@@ -111,6 +116,32 @@ const HomeScreen = ({ navigation }) => {
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const handleCatTap = () => {
+    if (isCatRunning) return;
+    
+    const newTaps = catTaps + 1;
+    setCatTaps(newTaps);
+    
+    if (newTaps >= 10) {
+      setCatTaps(0);
+      runCatAnimation();
+    }
+  };
+
+  const runCatAnimation = () => {
+    setIsCatRunning(true);
+    catPosition.setValue(-100); // Start off-screen left
+    
+    Animated.timing(catPosition, {
+      toValue: SCREEN_WIDTH + 100, // Move off-screen right
+      duration: 2500, // 2.5 seconds to run across
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }).start(() => {
+      setIsCatRunning(false); // Reset when done
+    });
   };
 
   return (
@@ -128,10 +159,14 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.mainCard}>
+        <TouchableOpacity 
+          activeOpacity={1} 
+          onPress={handleCatTap}
+          style={styles.mainCard}
+        >
           <Ionicons name="book-outline" size={100} color="#ff6b6b" />
           <Text style={styles.subtitle}>{t('freundebuch.tagline')}</Text>
-        </View>
+        </TouchableOpacity>
 
         <View style={styles.langContainer}>
           <TouchableOpacity 
@@ -160,6 +195,13 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         )}
       </ScrollView>
+
+      {/* Running Cat Easter Egg */}
+      {isCatRunning && (
+        <Animated.View style={[styles.runningCat, { transform: [{ translateX: catPosition }] }]}>
+          <Text style={{ fontSize: 60 }}>🐈</Text>
+        </Animated.View>
+      )}
     </View>
   );
 };
@@ -239,6 +281,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  runningCat: {
+    position: 'absolute',
+    top: '40%', // Roughly middle of the screen vertically
+    zIndex: 999, // Ensure it's on top of everything
   },
 });
 
