@@ -106,7 +106,6 @@ const ChatScreen = () => {
   const renderItem = ({ item }) => {
     const isMe = item.senderId === currentUserId;
     return (
-...
       <View style={[styles.messageBubble, isMe ? styles.myMessage : styles.theirMessage]}>
         <Text style={styles.senderName}>{isMe ? t('secretChat.me') : item.sender}</Text>
         <Text style={styles.messageText}>{item.text}</Text>
