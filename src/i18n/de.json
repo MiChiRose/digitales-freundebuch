@@ -46,6 +46,8 @@
     "wrongCode": "Falscher Code",
     "tryAgain": "Probiere es noch einmal!",
     "me": "Ich",
-    "placeholder": "Nachricht..."
+    "placeholder": "Nachricht...",
+    "loading": "Lade Nachrichten...",
+    "empty": "Noch keine Nachrichten hier. Schreib etwas!"
   }
 }

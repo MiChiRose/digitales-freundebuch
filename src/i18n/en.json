@@ -46,6 +46,8 @@
     "wrongCode": "Wrong Code",
     "tryAgain": "Try again!",
     "me": "Me",
-    "placeholder": "Message..."
+    "placeholder": "Message...",
+    "loading": "Loading messages...",
+    "empty": "No messages yet. Say hi!"
   }
 }
