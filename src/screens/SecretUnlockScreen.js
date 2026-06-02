@@ -12,7 +12,7 @@ const SecretUnlockScreen = ({ navigation }) => {
     if (code === SECRET_CODE) {
       navigation.navigate('SecretChat');
     } else {
-      Alert.alert('Falscher Code', 'Probiere es еще einmal!');
+      Alert.alert(t('secretChat.wrongCode'), t('secretChat.tryAgain'));
       setCode('');
     }
   };

@@ -46,6 +46,7 @@ const TabNavigator = () => {
 };
 
 const AppNavigator = () => {
+  const { t } = useTranslation();
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MainTabs" component={TabNavigator} />

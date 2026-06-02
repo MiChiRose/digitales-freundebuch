@@ -7,8 +7,8 @@ const ChatScreen = () => {
   const { t } = useTranslation();
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([
-    { id: '1', text: 'Hey Lena! 👋', sender: 'Emma', time: '10:00' },
-    { id: '2', text: 'Hallo! Wie gehts?', sender: 'Me', time: '10:01' },
+    { id: '1', text: 'Hey! 👋', sender: 'Emma', time: '10:00' },
+    { id: '2', text: 'Hallo!', sender: 'Me', time: '10:01' },
   ]);
 
   const sendMessage = () => {
@@ -22,7 +22,7 @@ const ChatScreen = () => {
     const isMe = item.sender === 'Me';
     return (
       <View style={[styles.messageBubble, isMe ? styles.myMessage : styles.theirMessage]}>
-        <Text style={styles.senderName}>{item.sender}</Text>
+        <Text style={styles.senderName}>{isMe ? t('secretChat.me') : item.sender}</Text>
         <Text style={styles.messageText}>{item.text}</Text>
         <Text style={styles.messageTime}>{item.time}</Text>
       </View>
@@ -51,7 +51,7 @@ const ChatScreen = () => {
           style={styles.input}
           value={message}
           onChangeText={setMessage}
-          placeholder="Nachricht..."
+          placeholder={t('secretChat.placeholder')}
         />
         <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
           <Ionicons name="send" size={24} color="#fff" />

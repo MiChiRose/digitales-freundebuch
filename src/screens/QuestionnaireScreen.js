@@ -68,10 +68,10 @@ const QuestionnaireScreen = ({ navigation, route }) => {
       }
 
       await AsyncStorage.setItem(storageKey, JSON.stringify(formData));
-      Alert.alert(t('common.save'), '✅ Done!');
+      Alert.alert(t('common.save'), t('common.done'));
       navigation.goBack();
     } catch (e) {
-      Alert.alert('Error', 'Could not save data');
+      Alert.alert(t('common.error'), t('common.saveError'));
     }
   };
 

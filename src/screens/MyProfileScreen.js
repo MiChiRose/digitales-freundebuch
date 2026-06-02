@@ -39,7 +39,7 @@ const MyProfileScreen = ({ navigation }) => {
         <View style={styles.avatarPlaceholder}>
           <Text style={styles.avatarText}>{profile?.mood || '👤'}</Text>
         </View>
-        <Text style={styles.name}>{profile?.name || 'Dein Name'}</Text>
+        <Text style={styles.name}>{profile?.name || t('freundebuch.yourName')}</Text>
         
         <View style={styles.infoContainer}>
           <Text style={styles.infoText}>🎂 {t('freundebuch.fields.age')}: {profile?.age || '?'}</Text>
@@ -53,7 +53,7 @@ const MyProfileScreen = ({ navigation }) => {
         style={styles.editButton}
         onPress={() => navigation.navigate('Questionnaire', { isMyProfile: true })}
       >
-        <Text style={styles.editButtonText}>{t('common.welcome') === 'Welcome!' ? 'Edit Profile' : 'Profil bearbeiten'}</Text>
+        <Text style={styles.editButtonText}>{t('common.edit')}</Text>
       </TouchableOpacity>
     </View>
   );

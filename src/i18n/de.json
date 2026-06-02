@@ -4,7 +4,15 @@
     "save": "Speichern",
     "cancel": "Abbrechen",
     "next": "Weiter",
-    "back": "Zurück"
+    "back": "Zurück",
+    "edit": "Bearbeiten",
+    "helpUncle": "Hilfe von Onkel rufen",
+    "noName": "Ohne Name",
+    "emptyFriends": "Noch keine Freunde hier...",
+    "addFriendHint": "Drücke auf +, um einen Freund hinzuzufügen!",
+    "done": "Fertig!",
+    "error": "Fehler",
+    "saveError": "Daten konnten nicht gespeichert werden"
   },
   "freundebuch": {
     "title": "Digitales Freundebuch",
@@ -12,6 +20,8 @@
     "friends": "Meine Freunde",
     "addFriend": "Freund hinzufügen",
     "questionnaire": "Fragebogen",
+    "tagline": "Halte deine Erinnerungen fest!",
+    "yourName": "Dein Name",
     "fields": {
       "name": "Mein Name",
       "age": "Mein Alter",
@@ -32,6 +42,10 @@
   "secretChat": {
     "title": "Geheimer Chat",
     "unlock": "Entsperren",
-    "enterCode": "Geheimcode eingeben"
+    "enterCode": "Geheimcode eingeben",
+    "wrongCode": "Falscher Code",
+    "tryAgain": "Probiere es noch einmal!",
+    "me": "Ich",
+    "placeholder": "Nachricht..."
   }
 }

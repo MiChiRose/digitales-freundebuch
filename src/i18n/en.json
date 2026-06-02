@@ -4,7 +4,15 @@
     "save": "Save",
     "cancel": "Cancel",
     "next": "Next",
-    "back": "Back"
+    "back": "Back",
+    "edit": "Edit",
+    "helpUncle": "Call Uncle for help",
+    "noName": "No Name",
+    "emptyFriends": "No friends here yet...",
+    "addFriendHint": "Tap + to add a friend!",
+    "done": "Done!",
+    "error": "Error",
+    "saveError": "Could not save data"
   },
   "freundebuch": {
     "title": "Digital Friends Book",
@@ -12,6 +20,8 @@
     "friends": "My Friends",
     "addFriend": "Add Friend",
     "questionnaire": "Questionnaire",
+    "tagline": "Keep your memories forever!",
+    "yourName": "Your Name",
     "fields": {
       "name": "My Name",
       "age": "My Age",
@@ -32,6 +42,10 @@
   "secretChat": {
     "title": "Secret Chat",
     "unlock": "Unlock",
-    "enterCode": "Enter Secret Code"
+    "enterCode": "Enter Secret Code",
+    "wrongCode": "Wrong Code",
+    "tryAgain": "Try again!",
+    "me": "Me",
+    "placeholder": "Message..."
   }
 }

@@ -25,23 +25,32 @@ const HomeScreen = ({ navigation }) => {
 
         <View style={styles.mainCard}>
           <Ionicons name="book-outline" size={100} color="#ff6b6b" />
-          <Text style={styles.subtitle}>Halte deine Erinnerungen fest!</Text>
+          <Text style={styles.subtitle}>{t('freundebuch.tagline')}</Text>
         </View>
 
         <View style={styles.langContainer}>
-          <TouchableOpacity style={styles.langButton} onPress={() => changeLanguage('de')}>
+          <TouchableOpacity 
+            style={[styles.langButton, i18n.language === 'de' && styles.langButtonActive]} 
+            onPress={() => changeLanguage('de')}
+          >
             <Text style={styles.langText}>🇩🇪 DE</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.langButton} onPress={() => changeLanguage('en')}>
+          <TouchableOpacity 
+            style={[styles.langButton, i18n.language === 'en' && styles.langButtonActive]} 
+            onPress={() => changeLanguage('en')}
+          >
             <Text style={styles.langText}>🇺🇸 EN</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.langButton} onPress={() => changeLanguage('ru')}>
+          <TouchableOpacity 
+            style={[styles.langButton, i18n.language === 'ru' && styles.langButtonActive]} 
+            onPress={() => changeLanguage('ru')}
+          >
             <Text style={styles.langText}>🇷🇺 RU</Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.helpButton}>
-          <Text style={styles.helpButtonText}>🆘 Hilfe von Onkel rufen</Text>
+          <Text style={styles.helpButtonText}>🆘 {t('common.helpUncle')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -102,6 +111,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 10,
+  },
+  langButtonActive: {
+    backgroundColor: '#ffe0e0',
+    borderWidth: 1,
+    borderColor: '#ff6b6b',
   },
   langText: {
     fontSize: 16,

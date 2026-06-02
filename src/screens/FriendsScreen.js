@@ -32,7 +32,7 @@ const FriendsScreen = ({ navigation }) => {
       onPress={() => navigation.navigate('Questionnaire', { profileId: item.id, isMyProfile: false })}
     >
       <Text style={styles.friendEmoji}>{item.mood}</Text>
-      <Text style={styles.friendName}>{item.name || 'Ohne Name'}</Text>
+      <Text style={styles.friendName}>{item.name || t('common.noName')}</Text>
       <Ionicons name="chevron-forward" size={20} color="#ccc" />
     </TouchableOpacity>
   );
@@ -47,8 +47,8 @@ const FriendsScreen = ({ navigation }) => {
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Noch keine Freunde hier...</Text>
-            <Text style={styles.emptySubtext}>Drücke auf +, чтобы добавить друга!</Text>
+            <Text style={styles.emptyText}>{t('common.emptyFriends')}</Text>
+            <Text style={styles.emptySubtext}>{t('common.addFriendHint')}</Text>
           </View>
         }
       />
