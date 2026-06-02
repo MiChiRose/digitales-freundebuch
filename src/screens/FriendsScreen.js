@@ -89,7 +89,7 @@ const FriendsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#F8F6FF',
     paddingTop: 60,
   },
   headerTitle: {
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 20,
     marginBottom: 20,
-    color: '#333',
+    color: '#4A4063',
   },
   listContainer: {
     paddingHorizontal: 20,
@@ -108,12 +108,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     padding: 15,
-    borderRadius: 12,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderRadius: 15,
+    marginBottom: 12,
+    shadowColor: '#A78BFA',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
     elevation: 3,
   },
   friendEmoji: {
@@ -124,17 +124,22 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontWeight: '500',
+    color: '#4A4063',
   },
   addButton: {
     position: 'absolute',
     bottom: 30,
     right: 30,
-    backgroundColor: '#ff6b6b',
+    backgroundColor: '#8EE4AF', // Mint Green for adding
     width: 60,
     height: 60,
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#8EE4AF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
     elevation: 5,
   },
   emptyContainer: {
@@ -143,11 +148,12 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 18,
-    color: '#666',
+    color: '#7C7392',
+    fontWeight: '600',
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#aaa',
+    color: '#A09CAB',
     marginTop: 10,
   },
 });

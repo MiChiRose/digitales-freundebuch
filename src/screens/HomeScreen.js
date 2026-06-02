@@ -169,7 +169,7 @@ const HomeScreen = ({ navigation }) => {
           onPress={handleCatTap}
           style={styles.mainCard}
         >
-          <Ionicons name="book-outline" size={100} color="#ff6b6b" />
+          <Ionicons name="book-outline" size={100} color="#A78BFA" />
           <Text style={styles.subtitle}>{t('freundebuch.tagline')}</Text>
         </TouchableOpacity>
 
@@ -214,7 +214,7 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#F8F6FF', // Soft ivory lavender
   },
   scrollContent: {
     paddingTop: 80,
@@ -227,12 +227,12 @@ const styles = StyleSheet.create({
   },
   welcome: {
     fontSize: 18,
-    color: '#666',
+    color: '#7C7392', // Soft dark grey/purple
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#4A4063', // Deep plum/grey
     textAlign: 'center',
   },
   mainCard: {
@@ -241,16 +241,16 @@ const styles = StyleSheet.create({
     padding: 40,
     borderRadius: 25,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#A78BFA',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
+    shadowOpacity: 0.15,
+    shadowRadius: 15,
     elevation: 5,
     marginBottom: 40,
   },
   subtitle: {
     fontSize: 18,
-    color: '#444',
+    color: '#4A4063',
     marginTop: 20,
     fontWeight: '500',
   },
@@ -261,22 +261,23 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   langButton: {
-    backgroundColor: '#eee',
+    backgroundColor: '#E9E3FF',
     paddingVertical: 10,
     paddingHorizontal: 15,
-    borderRadius: 10,
+    borderRadius: 12,
   },
   langButtonActive: {
-    backgroundColor: '#ffe0e0',
-    borderWidth: 1,
-    borderColor: '#ff6b6b',
+    backgroundColor: '#C3B1E1', // Richer lavender for active
+    borderWidth: 2,
+    borderColor: '#A78BFA',
   },
   langText: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#4A4063',
   },
   helpButton: {
-    backgroundColor: '#333',
+    backgroundColor: '#4A4063',
     padding: 15,
     borderRadius: 15,
     width: '100%',
@@ -289,8 +290,9 @@ const styles = StyleSheet.create({
   },
   runningCat: {
     position: 'absolute',
-    zIndex: 999, // Ensure it's on top of everything
+    zIndex: 999,
   },
 });
+
 
 export default HomeScreen;

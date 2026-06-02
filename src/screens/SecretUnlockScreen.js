@@ -93,10 +93,10 @@ const SecretUnlockScreen = ({ navigation }) => {
         onPress={() => navigation.goBack()}
         disabled={isChecking}
       >
-        <Ionicons name="arrow-back" size={24} color="#333" />
+        <Ionicons name="arrow-back" size={24} color="#4A4063" />
       </TouchableOpacity>
 
-      <Ionicons name="lock-closed" size={80} color="#ff6b6b" style={styles.icon} />
+      <Ionicons name="lock-closed" size={80} color="#A78BFA" style={styles.icon} />
       <Text style={styles.title}>{t('secretChat.enterCode')}</Text>
       
       <TextInput
@@ -106,6 +106,7 @@ const SecretUnlockScreen = ({ navigation }) => {
         keyboardType="numeric"
         secureTextEntry
         placeholder="****"
+        placeholderTextColor="#A09CAB"
         maxLength={4}
         editable={!isChecking}
       />
@@ -128,7 +129,7 @@ const SecretUnlockScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F8F6FF',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
@@ -145,27 +146,35 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: '#333',
+    color: '#4A4063',
   },
   input: {
     width: '60%',
     height: 60,
+    backgroundColor: '#fff',
     borderWidth: 2,
-    borderColor: '#eee',
+    borderColor: '#E9E3FF',
     borderRadius: 15,
     textAlign: 'center',
     fontSize: 28,
     letterSpacing: 10,
     marginBottom: 30,
+    color: '#4A4063',
   },
   button: {
-    backgroundColor: '#ff6b6b',
+    backgroundColor: '#A78BFA',
     paddingVertical: 15,
     paddingHorizontal: 40,
-    borderRadius: 12,
+    borderRadius: 15,
+    shadowColor: '#A78BFA',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
   },
   buttonDisabled: {
-    backgroundColor: '#ffb3b3',
+    backgroundColor: '#D1C4E9',
+    shadowOpacity: 0.1,
   },
   buttonText: {
     color: '#fff',

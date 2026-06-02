@@ -38,8 +38,8 @@ const TabNavigator = () => {
             </View>
           );
         },
-        tabBarActiveTintColor: '#ff6b6b',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: '#A78BFA',
+        tabBarInactiveTintColor: '#A09CAB',
         headerShown: false,
       })}
     >
