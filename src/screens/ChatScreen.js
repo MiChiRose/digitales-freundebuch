@@ -1,25 +1,99 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  FlatList, 
+  TextInput, 
+  TouchableOpacity, 
+  KeyboardAvoidingView, 
+  Platform 
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
+import { db, auth } from '../context/firebaseConfig';
+import { 
+  collection, 
+  addDoc, 
+  query, 
+  orderBy, 
+  onSnapshot, 
+  serverTimestamp,
+  limit
+} from 'firebase/firestore';
+import { signInAnonymously } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ChatScreen = () => {
   const { t } = useTranslation();
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([
-    { id: '1', text: 'Hey! 👋', sender: 'Emma', time: '10:00' },
-    { id: '2', text: 'Hallo!', sender: 'Me', time: '10:01' },
-  ]);
+  const [messages, setMessages] = useState([]);
+  const [userName, setUserName] = useState('Anonymous');
 
-  const sendMessage = () => {
+  useEffect(() => {
+    // 1. Ensure user is logged in (anonymously)
+    const initChat = async () => {
+      try {
+        if (!auth.currentUser) {
+          await signInAnonymously(auth);
+        }
+        
+        // Load my name from local profile to show in chat
+        const myData = await AsyncStorage.getItem('my_profile');
+        if (myData) {
+          const parsed = JSON.parse(myData);
+          if (parsed.name) setUserName(parsed.name);
+        }
+      } catch (e) {
+        console.error("Auth error", e);
+      }
+    };
+
+    initChat();
+
+    // 2. Subscribe to real-time messages
+    const q = query(
+      collection(db, "secret_messages"), 
+      orderBy("createdAt", "desc"),
+      limit(50)
+    );
+
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const msgs = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        msgs.push({
+          id: doc.id,
+          ...data,
+          time: data.createdAt?.toDate() ? data.createdAt.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...'
+        });
+      });
+      setMessages(msgs);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const sendMessage = async () => {
     if (message.trim()) {
-      setMessages([...messages, { id: Date.now().toString(), text: message, sender: 'Me', time: '10:05' }]);
-      setMessage('');
+      const textToSend = message;
+      setMessage(''); // Clear input immediately for UX
+      
+      try {
+        await addDoc(collection(db, "secret_messages"), {
+          text: textToSend,
+          sender: userName,
+          senderId: auth.currentUser?.uid || 'unknown',
+          createdAt: serverTimestamp(),
+        });
+      } catch (e) {
+        console.error("Send error", e);
+      }
     }
   };
 
   const renderItem = ({ item }) => {
-    const isMe = item.sender === 'Me';
+    const isMe = item.senderId === auth.currentUser?.uid;
     return (
       <View style={[styles.messageBubble, isMe ? styles.myMessage : styles.theirMessage]}>
         <Text style={styles.senderName}>{isMe ? t('secretChat.me') : item.sender}</Text>
@@ -44,6 +118,7 @@ const ChatScreen = () => {
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.chatList}
+        inverted // Show newest at bottom
       />
 
       <View style={styles.inputContainer}>
