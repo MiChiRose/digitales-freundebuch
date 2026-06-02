@@ -13,8 +13,16 @@ const resources = {
 };
 
 // Try to get system language, fallback to 'de'
-const systemLanguage = Localization.locale.split('-')[0];
-const defaultLanguage = resources[systemLanguage] ? systemLanguage : 'de';
+const getSystemLanguage = () => {
+  try {
+    const locale = Localization.locale || (Localization.getLocales && Localization.getLocales()[0]?.languageCode);
+    return locale ? locale.split('-')[0] : 'de';
+  } catch (e) {
+    return 'de';
+  }
+};
+
+const defaultLanguage = resources[getSystemLanguage()] ? getSystemLanguage() : 'de';
 
 i18n
   .use(initReactI18next)

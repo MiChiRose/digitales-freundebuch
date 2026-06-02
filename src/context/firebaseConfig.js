@@ -2,14 +2,13 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
-// TODO: Replace with actual keys from Firebase Console
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyA701EHLE4urYA0Qmr-C6mcAHDXXzxb6rI",
+  authDomain: "digitales-freundebuch.firebaseapp.com",
+  projectId: "digitales-freundebuch",
+  storageBucket: "digitales-freundebuch.firebasestorage.app",
+  messagingSenderId: "891826792087",
+  appId: "1:891826792087:web:42def0c9625e3610d82bd2"
 };
 
 const app = initializeApp(firebaseConfig);
