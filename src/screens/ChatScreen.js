@@ -29,56 +29,67 @@ const ChatScreen = () => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [userName, setUserName] = useState('Anonymous');
+  const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   useEffect(() => {
-    // 1. Ensure user is logged in (anonymously)
-    const initChat = async () => {
-      try {
-        if (!auth.currentUser) {
-          await signInAnonymously(auth);
-        }
-        
-        // Load my name from local profile to show in chat
-        const myData = await AsyncStorage.getItem('my_profile');
-        if (myData) {
-          const parsed = JSON.parse(myData);
-          if (parsed.name) setUserName(parsed.name);
-        }
-      } catch (e) {
-        console.error("Auth error", e);
+    let unsubscribeMessages = () => {};
+    
+    // Listen for auth state changes
+    const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        setCurrentUserId(user.uid);
+        startListeningMessages();
+      } else {
+        signInAnonymously(auth).catch(console.error);
+      }
+    });
+
+    const startListeningMessages = () => {
+      const q = query(
+        collection(db, "secret_messages"), 
+        orderBy("createdAt", "desc"),
+        limit(50)
+      );
+
+      unsubscribeMessages = onSnapshot(q, (querySnapshot) => {
+        const msgs = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          let timeStr = '...';
+          if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+            timeStr = data.createdAt.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+          }
+          msgs.push({ id: doc.id, ...data, time: timeStr });
+        });
+        setMessages(msgs);
+        setLoading(false);
+      }, (error) => {
+        console.error("Snapshot error:", error);
+        setLoading(false);
+      });
+    };
+
+    const loadProfileName = async () => {
+      const myData = await AsyncStorage.getItem('my_profile');
+      if (myData) {
+        const parsed = JSON.parse(myData);
+        if (parsed.name) setUserName(parsed.name);
       }
     };
 
-    initChat();
+    loadProfileName();
 
-    // 2. Subscribe to real-time messages
-    const q = query(
-      collection(db, "secret_messages"), 
-      orderBy("createdAt", "desc"),
-      limit(50)
-    );
-
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const msgs = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        msgs.push({
-          id: doc.id,
-          ...data,
-          time: data.createdAt?.toDate() ? data.createdAt.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...'
-        });
-      });
-      setMessages(msgs);
-    });
-
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      unsubscribeMessages();
+    };
   }, []);
 
   const sendMessage = async () => {
     if (message.trim()) {
       const textToSend = message;
-      setMessage(''); // Clear input immediately for UX
-      
+      setMessage('');
       try {
         await addDoc(collection(db, "secret_messages"), {
           text: textToSend,
@@ -93,8 +104,9 @@ const ChatScreen = () => {
   };
 
   const renderItem = ({ item }) => {
-    const isMe = item.senderId === auth.currentUser?.uid;
+    const isMe = item.senderId === currentUserId;
     return (
+...
       <View style={[styles.messageBubble, isMe ? styles.myMessage : styles.theirMessage]}>
         <Text style={styles.senderName}>{isMe ? t('secretChat.me') : item.sender}</Text>
         <Text style={styles.messageText}>{item.text}</Text>
@@ -113,13 +125,24 @@ const ChatScreen = () => {
         <Text style={styles.headerTitle}>{t('secretChat.title')} 🕵️‍♀️</Text>
       </View>
 
-      <FlatList
-        data={messages}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.chatList}
-        inverted // Show newest at bottom
-      />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <Text>{t('secretChat.loading')}</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={messages}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.chatList}
+          inverted
+          ListEmptyComponent={
+            <View style={styles.emptyChat}>
+              <Text>{t('secretChat.empty')}</Text>
+            </View>
+          }
+        />
+      )}
 
       <View style={styles.inputContainer}>
         <TextInput
@@ -186,6 +209,18 @@ const styles = StyleSheet.create({
     color: '#999',
     alignSelf: 'flex-end',
     marginTop: 4,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyChat: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 50,
+    transform: [{ scaleY: -1 }], // Invert because list is inverted
   },
   inputContainer: {
     flexDirection: 'row',
