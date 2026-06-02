@@ -49,6 +49,9 @@
     "placeholder": "Message...",
     "loading": "Loading messages...",
     "empty": "No messages yet. Say hi!",
-    "roomFull": "This code is already used by others. Please choose a new code!"
+    "roomFull": "This code is already used by others. Please choose a new code!",
+    "alreadyInRoom": "You already have a chat (#{{code}}). Delete it first!",
+    "deleteChat": "Delete Chat",
+    "deleteConfirm": "Do you really want to delete this chat forever?"
   }
 }

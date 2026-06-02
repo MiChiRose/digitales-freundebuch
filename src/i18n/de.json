@@ -49,6 +49,9 @@
     "placeholder": "Nachricht...",
     "loading": "Lade Nachrichten...",
     "empty": "Noch keine Nachrichten hier. Schreib etwas!",
-    "roomFull": "Dieser Code wird bereits von anderen benutzt. Bitte wähle einen neuen Code!"
+    "roomFull": "Dieser Code wird bereits von anderen benutzt. Bitte wähle einen neuen Code!",
+    "alreadyInRoom": "Du hast bereits einen Chat (#{{code}}). Lösche ihn zuerst!",
+    "deleteChat": "Chat löschen",
+    "deleteConfirm": "Willst du diesen Chat wirklich für immer löschen?"
   }
 }
