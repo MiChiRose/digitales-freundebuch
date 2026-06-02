@@ -20,11 +20,12 @@ Diese App wurde mit viel Liebe von einem Onkel für seine 10-jährige Nichte ent
     *   *Sicherheit:* Ein Chatraum ist auf **maximal 2 Personen** begrenzt. Niemand sonst kann mitlesen!
 *   **Mehrsprachig:** Die App spricht fließend Deutsch, Englisch und Russisch!
 
-### ⚠️ Wichtiger Hinweis / Haftungsausschluss
+### ⚠️ Wichtiger Hinweis für Eltern / Haftungsausschluss
 Diese Anwendung ist **ausschließlich für die Unterhaltung von Kindern und den privaten Gebrauch innerhalb eines vertrauten Freundeskreises** gedacht.
 *   **Nicht für Erwachsene:** Diese App ist nicht für die Nutzung durch Erwachsene vorgesehen oder empfohlen.
-*   **Datenschutz an erster Stelle:** Die App nutzt anonyme lokale Umgebungen und sammelt, speichert oder verarbeitet keine persönlichen identifizierbaren Daten (wie Telefonnummern oder E-Mails) auf öffentlichen Servern.
-*   **Keine Haftung:** Der Entwickler dieser App übernimmt keine Haftung für deren Nutzung. Sie wird "wie besehen" (as is) als persönliches Familienprojekt zur Verfügung gestellt. Eltern wird grundsätzlich empfohlen, die digitalen Aktivitäten ihrer Kinder zu begleiten und zu überwachen.
+*   **Datenschutz:** Die App nutzt anonyme lokale Umgebungen und sammelt, speichert oder verarbeitet keine persönlichen identifizierbaren Daten auf öffentlichen Servern.
+*   **Verbotene Inhalte:** Es ist strengstens untersagt, diese Anwendung zur Verbreitung von politischen, illegalen, anstößigen, betrügerischen (Phishing) oder schädlichen (Hacking) Inhalten zu nutzen. Die App ist ein reines Unterhaltungswerkzeug.
+*   **Keine Haftung:** Der Entwickler dieser App übernimmt **keinerlei Haftung** für die Art und Weise, wie diese App genutzt wird, oder für die Inhalte, die von Benutzern generiert oder geteilt werden. Sie wird "wie besehen" (as is) als persönliches Familienprojekt zur Verfügung gestellt. Eltern und Erziehungsberechtigte tragen die volle Verantwortung für die Überwachung der digitalen Aktivitäten ihrer Kinder.
 
 ---
 
@@ -44,11 +45,12 @@ This application was lovingly created by an uncle for his 10-year-old niece. It'
     *   *Security:* A chat room is limited to a **maximum of 2 people**. No one else can read your messages!
 *   **Multi-language:** The app fluently speaks German, English, and Russian!
 
-### ⚠️ Important Notice / Legal Disclaimer
+### ⚠️ Important Notice for Parents / Legal Disclaimer
 This application is designed **strictly for children's entertainment and personal use within a trusted circle of friends**. 
 *   **Not for Adults:** This app is not intended, designed, or recommended for adult use. 
-*   **Privacy First:** It uses anonymous local environments and does not collect, store, or process personal identifiable data (like phone numbers or emails) on public servers.
-*   **No Liability:** The creator of this app assumes no liability for its use. It is provided "as is" as a personal family project. Parents and guardians are always encouraged to supervise their children's digital activities.
+*   **Privacy:** It uses anonymous local environments and does not collect, store, or process personal identifiable data on public servers.
+*   **Prohibited Content:** It is strictly forbidden to use this application to distribute political, illegal, offensive, fraudulent (phishing), or malicious (hacking) content. The app is a pure entertainment tool.
+*   **No Liability:** The creator of this app assumes **zero liability** for how this app is used or for any content generated or shared by users. It is provided "as is" as a personal family project. Parents and guardians bear full responsibility for supervising their children's digital activities.
 
 ---
 
@@ -68,8 +70,9 @@ This application is designed **strictly for children's entertainment and persona
     *   *Безопасность:* В одной комнате могут находиться **максимум 2 человека**. Больше никто не сможет прочитать ваши сообщения!
 *   **Мультиязычность:** Приложение свободно говорит на немецком, английском и русском языках!
 
-### ⚠️ Важное уведомление / Отказ от ответственности
+### ⚠️ Важное уведомление для родителей / Отказ от ответственности
 Данное приложение предназначено **исключительно для детского развлечения и личного использования в доверенном кругу друзей**.
 *   **Не для взрослых:** Это приложение не предназначено и не рекомендуется для использования взрослыми.
-*   **Конфиденциальность:** Приложение использует анонимные локальные среды и не собирает, не хранит и не обрабатывает личные данные (такие как номера телефонов или электронные почты) на публичных серверах.
-*   **Отказ от ответственности:** Создатель этого приложения не несет никакой ответственности за его использование. Оно предоставляется "как есть" в качестве личного семейного проекта. Родителям и опекунам всегда настоятельно рекомендуется контролировать цифровые активности своих детей.
+*   **Конфиденциальность:** Приложение использует анонимные локальные среды и не собирает, не хранит и не обрабатывает личные данные на публичных серверах.
+*   **Запрещенный контент:** Категорически запрещается использовать данное приложение для распространения политического, незаконного, оскорбительного, мошеннического (фишинг) или вредоносного (хакерского) контента. Приложение является исключительно развлекательным инструментом.
+*   **Отказ от ответственности:** Создатель этого приложения **не несет никакой ответственности** за способы использования данного приложения или за контент, создаваемый или передаваемый пользователями. Оно предоставляется "как есть" (as is) в качестве личного семейного проекта. Родители и опекуны несут полную ответственность за контроль цифровых активностей своих детей.
