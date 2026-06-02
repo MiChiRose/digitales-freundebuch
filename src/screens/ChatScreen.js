@@ -7,7 +7,8 @@ import {
   TextInput, 
   TouchableOpacity, 
   KeyboardAvoidingView, 
-  Platform 
+  Platform,
+  Alert
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
