@@ -36,7 +36,15 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const handleSOS = async () => {
-    const unclePhoneNumber = '491234567890'; // Dummy number
+    // Read the phone number from environment variables securely
+    const unclePhoneNumber = process.env.EXPO_PUBLIC_UNCLE_PHONE;
+    
+    if (!unclePhoneNumber) {
+      console.warn("Uncle's phone number is not configured in .env");
+      Alert.alert(t('common.error'), 'Telefonnummer nicht konfiguriert.');
+      return;
+    }
+
     const message = t('common.sosMessage');
     const url = `whatsapp://send?phone=${unclePhoneNumber}&text=${encodeURIComponent(message)}`;
 
