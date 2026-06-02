@@ -9,8 +9,8 @@ const SecretUnlockScreen = ({ navigation }) => {
   const SECRET_CODE = '1234'; // In real app, this could be synced via Firebase
 
   const handleUnlock = () => {
-    if (code === SECRET_CODE) {
-      navigation.navigate('SecretChat');
+    if (code.length === 4) { // Allow any 4-digit code to act as a Room ID
+      navigation.navigate('SecretChat', { roomCode: code });
     } else {
       Alert.alert(t('secretChat.wrongCode'), t('secretChat.tryAgain'));
       setCode('');
