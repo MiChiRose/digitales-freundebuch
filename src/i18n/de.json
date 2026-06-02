@@ -12,7 +12,9 @@
     "addFriendHint": "Drücke auf +, um einen Freund hinzuzufügen!",
     "done": "Fertig!",
     "error": "Fehler",
-    "saveError": "Daten konnten nicht gespeichert werden"
+    "saveError": "Daten konnten nicht gespeichert werden",
+    "sosMessage": "Hallo Onkel! Ich brauche deine Hilfe mit meinem Handy/App! 🆘",
+    "noWhatsApp": "WhatsApp ist nicht installiert!"
   },
   "freundebuch": {
     "title": "Digitales Freundebuch",

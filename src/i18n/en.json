@@ -12,7 +12,9 @@
     "addFriendHint": "Tap + to add a friend!",
     "done": "Done!",
     "error": "Error",
-    "saveError": "Could not save data"
+    "saveError": "Could not save data",
+    "sosMessage": "Hi Uncle! I need your help with my phone/app! 🆘",
+    "noWhatsApp": "WhatsApp is not installed!"
   },
   "freundebuch": {
     "title": "Digital Friends Book",

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -8,6 +8,25 @@ const HomeScreen = ({ navigation }) => {
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
+  };
+
+  const handleSOS = async () => {
+    // Note: Replace with the actual phone number including country code, e.g., '4915112345678'
+    const unclePhoneNumber = '491234567890'; // Dummy number
+    const message = t('common.sosMessage');
+    const url = `whatsapp://send?phone=${unclePhoneNumber}&text=${encodeURIComponent(message)}`;
+
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert(t('common.error'), t('common.noWhatsApp'));
+      }
+    } catch (error) {
+      console.error('An error occurred', error);
+      Alert.alert(t('common.error'), 'Ein Fehler ist aufgetreten.');
+    }
   };
 
   return (
@@ -49,7 +68,7 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.helpButton}>
+        <TouchableOpacity style={styles.helpButton} onPress={handleSOS}>
           <Text style={styles.helpButtonText}>🆘 {t('common.helpUncle')}</Text>
         </TouchableOpacity>
       </ScrollView>
