@@ -48,6 +48,7 @@
     "me": "Ich",
     "placeholder": "Nachricht...",
     "loading": "Lade Nachrichten...",
-    "empty": "Noch keine Nachrichten hier. Schreib etwas!"
+    "empty": "Noch keine Nachrichten hier. Schreib etwas!",
+    "roomFull": "Dieser Code wird bereits von anderen benutzt. Bitte wähle einen neuen Code!"
   }
 }
