@@ -48,20 +48,26 @@ const SecretUnlockScreen = ({ navigation }) => {
         if (!roomSnap.exists()) {
           // Room does not exist, claim it. Mark myself as creator.
           await setDoc(roomRef, { participants: [myUid], creator: myUid });
-          navigation.navigate('SecretChat', { roomCode: code });
+          const currentCode = code;
+          setCode('');
+          navigation.replace('SecretChat', { roomCode: currentCode });
         } else {
           const data = roomSnap.data();
           const participants = data.participants || [];
 
           if (participants.includes(myUid)) {
             // Already a member
-            navigation.navigate('SecretChat', { roomCode: code });
+            const currentCode = code;
+            setCode('');
+            navigation.replace('SecretChat', { roomCode: currentCode });
           } else if (participants.length < 2) {
             // Room has space for one more friend
             await updateDoc(roomRef, {
               participants: arrayUnion(myUid)
             });
-            navigation.navigate('SecretChat', { roomCode: code });
+            const currentCode = code;
+            setCode('');
+            navigation.replace('SecretChat', { roomCode: currentCode });
           } else {
             // Room is full (2 people max)
             Alert.alert(t('common.error') || 'Error', t('secretChat.roomFull'));
