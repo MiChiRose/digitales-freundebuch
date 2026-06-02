@@ -1,0 +1,21 @@
+{
+  "common": {
+    "welcome": "Willkommen!",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "next": "Weiter",
+    "back": "Zurück"
+  },
+  "freundebuch": {
+    "title": "Digitales Freundebuch",
+    "myProfile": "Mein Profil",
+    "friends": "Meine Freunde",
+    "addFriend": "Freund hinzufügen",
+    "questionnaire": "Fragebogen"
+  },
+  "secretChat": {
+    "title": "Geheimer Chat",
+    "unlock": "Entsperren",
+    "enterCode": "Geheimcode eingeben"
+  }
+}

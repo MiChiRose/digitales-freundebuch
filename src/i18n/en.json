@@ -1,0 +1,21 @@
+{
+  "common": {
+    "welcome": "Welcome!",
+    "save": "Save",
+    "cancel": "Cancel",
+    "next": "Next",
+    "back": "Back"
+  },
+  "freundebuch": {
+    "title": "Digital Friends Book",
+    "myProfile": "My Profile",
+    "friends": "My Friends",
+    "addFriend": "Add Friend",
+    "questionnaire": "Questionnaire"
+  },
+  "secretChat": {
+    "title": "Secret Chat",
+    "unlock": "Unlock",
+    "enterCode": "Enter Secret Code"
+  }
+}
