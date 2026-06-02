@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 
 const HomeScreen = ({ navigation }) => {
   const { t, i18n } = useTranslation();
+  const [secretTaps, setSecretTaps] = useState(0);
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
@@ -29,6 +30,10 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
+  const handleSecretTap = () => {
+    setSecretTaps(prev => prev + 1);
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -42,10 +47,14 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.mainCard}>
+        <TouchableOpacity 
+          style={styles.mainCard} 
+          activeOpacity={1} 
+          onPress={handleSecretTap}
+        >
           <Ionicons name="book-outline" size={100} color="#ff6b6b" />
           <Text style={styles.subtitle}>{t('freundebuch.tagline')}</Text>
-        </View>
+        </TouchableOpacity>
 
         <View style={styles.langContainer}>
           <TouchableOpacity 
@@ -68,9 +77,11 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.helpButton} onPress={handleSOS}>
-          <Text style={styles.helpButtonText}>🆘 {t('common.helpUncle')}</Text>
-        </TouchableOpacity>
+        {secretTaps >= 5 && (
+          <TouchableOpacity style={styles.helpButton} onPress={handleSOS}>
+            <Text style={styles.helpButtonText}>🆘 {t('common.helpUncle')}</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
     </View>
   );
