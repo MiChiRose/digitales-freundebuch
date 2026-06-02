@@ -16,6 +16,7 @@ const HomeScreen = ({ navigation }) => {
   // Easter Egg State
   const [catTaps, setCatTaps] = useState(0);
   const [isCatRunning, setIsCatRunning] = useState(false);
+  const [catVerticalPos, setCatVerticalPos] = useState('40%');
   const catPosition = useRef(new Animated.Value(-100)).current;
 
   useEffect(() => {
@@ -131,6 +132,10 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const runCatAnimation = () => {
+    // Generate a random vertical position between 10% and 85% to keep it within the screen
+    const randomY = Math.floor(Math.random() * 75) + 10;
+    setCatVerticalPos(`${randomY}%`);
+    
     setIsCatRunning(true);
     catPosition.setValue(-100); // Start off-screen left
     
@@ -198,7 +203,7 @@ const HomeScreen = ({ navigation }) => {
 
       {/* Running Cat Easter Egg */}
       {isCatRunning && (
-        <Animated.View style={[styles.runningCat, { transform: [{ translateX: catPosition }] }]}>
+        <Animated.View style={[styles.runningCat, { top: catVerticalPos, transform: [{ translateX: catPosition }] }]}>
           <Text style={{ fontSize: 60 }}>🐈</Text>
         </Animated.View>
       )}
@@ -284,7 +289,6 @@ const styles = StyleSheet.create({
   },
   runningCat: {
     position: 'absolute',
-    top: '40%', // Roughly middle of the screen vertically
     zIndex: 999, // Ensure it's on top of everything
   },
 });
