@@ -11,7 +11,23 @@
     "myProfile": "My Profile",
     "friends": "My Friends",
     "addFriend": "Add Friend",
-    "questionnaire": "Questionnaire"
+    "questionnaire": "Questionnaire",
+    "fields": {
+      "name": "My Name",
+      "age": "My Age",
+      "hobby": "My Hobbies",
+      "food": "Favorite Food",
+      "dream": "My Big Dream",
+      "mood": "My Mood (Emoji)"
+    },
+    "placeholders": {
+      "name": "What's your name?",
+      "age": "How old are you?",
+      "hobby": "What do you like to do?",
+      "food": "What's your favorite food?",
+      "dream": "What do you want to be?",
+      "mood": "Choose an emoji..."
+    }
   },
   "secretChat": {
     "title": "Secret Chat",

@@ -11,7 +11,23 @@
     "myProfile": "Mein Profil",
     "friends": "Meine Freunde",
     "addFriend": "Freund hinzufügen",
-    "questionnaire": "Fragebogen"
+    "questionnaire": "Fragebogen",
+    "fields": {
+      "name": "Mein Name",
+      "age": "Mein Alter",
+      "hobby": "Meine Hobbys",
+      "food": "Lieblingsessen",
+      "dream": "Mein größter Traum",
+      "mood": "Meine Stimmung (Emoji)"
+    },
+    "placeholders": {
+      "name": "Wie heißt du?",
+      "age": "Wie alt bist du?",
+      "hobby": "Was machst du gerne?",
+      "food": "Was isst du am liebsten?",
+      "dream": "Was möchtest du mal werden?",
+      "mood": "Wähle ein Emoji..."
+    }
   },
   "secretChat": {
     "title": "Geheimer Chat",

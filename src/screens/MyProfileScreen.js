@@ -1,10 +1,30 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
-const MyProfileScreen = () => {
+const MyProfileScreen = ({ navigation }) => {
   const { t } = useTranslation();
+  const [profile, setProfile] = useState(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadProfile();
+    }, [])
+  );
+
+  const loadProfile = async () => {
+    try {
+      const data = await AsyncStorage.getItem('my_profile');
+      if (data) {
+        setProfile(JSON.parse(data));
+      }
+    } catch (e) {
+      console.error('Load error', e);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -17,14 +37,23 @@ const MyProfileScreen = () => {
 
       <View style={styles.profileCard}>
         <View style={styles.avatarPlaceholder}>
-          <Ionicons name="person" size={50} color="#ccc" />
+          <Text style={styles.avatarText}>{profile?.mood || '👤'}</Text>
         </View>
-        <Text style={styles.name}>Lena</Text>
-        <Text style={styles.bio}>Ich liebe Malen und Minecraft! 🎨⛏️</Text>
+        <Text style={styles.name}>{profile?.name || 'Dein Name'}</Text>
+        
+        <View style={styles.infoContainer}>
+          <Text style={styles.infoText}>🎂 {t('freundebuch.fields.age')}: {profile?.age || '?'}</Text>
+          <Text style={styles.infoText}>🎨 {t('freundebuch.fields.hobby')}: {profile?.hobby || '?'}</Text>
+          <Text style={styles.infoText}>🍕 {t('freundebuch.fields.food')}: {profile?.food || '?'}</Text>
+          <Text style={styles.infoText}>🌈 {t('freundebuch.fields.dream')}: {profile?.dream || '?'}</Text>
+        </View>
       </View>
 
-      <TouchableOpacity style={styles.editButton}>
-        <Text style={styles.editButtonText}>{t('common.save')}</Text>
+      <TouchableOpacity 
+        style={styles.editButton}
+        onPress={() => navigation.navigate('Questionnaire', { isMyProfile: true })}
+      >
+        <Text style={styles.editButtonText}>{t('common.welcome') === 'Welcome!' ? 'Edit Profile' : 'Profil bearbeiten'}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -51,7 +80,7 @@ const styles = StyleSheet.create({
   profileCard: {
     backgroundColor: '#fff',
     borderRadius: 20,
-    padding: 30,
+    padding: 20,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -68,15 +97,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  name: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 10,
+  avatarText: {
+    fontSize: 50,
   },
-  bio: {
+  name: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  infoContainer: {
+    width: '100%',
+    alignItems: 'flex-start',
+  },
+  infoText: {
     fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
+    color: '#444',
+    marginBottom: 10,
   },
   editButton: {
     marginTop: 40,

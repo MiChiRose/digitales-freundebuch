@@ -1,22 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
-const FriendsScreen = () => {
+const FriendsScreen = ({ navigation }) => {
   const { t } = useTranslation();
+  const [friends, setFriends] = useState([]);
 
-  // Dummy data
-  const friends = [
-    { id: '1', name: 'Emma', mood: '😊' },
-    { id: '2', name: 'Lukas', mood: '😎' },
-    { id: '3', name: 'Mia', mood: '🌟' },
-  ];
+  useFocusEffect(
+    useCallback(() => {
+      loadFriends();
+    }, [])
+  );
+
+  const loadFriends = async () => {
+    try {
+      const savedFriends = await AsyncStorage.getItem('friends_list');
+      if (savedFriends) {
+        setFriends(JSON.parse(savedFriends));
+      }
+    } catch (e) {
+      console.error('Failed to load friends list', e);
+    }
+  };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.friendCard}>
+    <TouchableOpacity 
+      style={styles.friendCard}
+      onPress={() => navigation.navigate('Questionnaire', { profileId: item.id, isMyProfile: false })}
+    >
       <Text style={styles.friendEmoji}>{item.mood}</Text>
-      <Text style={styles.friendName}>{item.name}</Text>
+      <Text style={styles.friendName}>{item.name || 'Ohne Name'}</Text>
       <Ionicons name="chevron-forward" size={20} color="#ccc" />
     </TouchableOpacity>
   );
@@ -29,8 +45,17 @@ const FriendsScreen = () => {
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>Noch keine Freunde hier...</Text>
+            <Text style={styles.emptySubtext}>Drücke auf +, чтобы добавить друга!</Text>
+          </View>
+        }
       />
-      <TouchableOpacity style={styles.addButton}>
+      <TouchableOpacity 
+        style={styles.addButton}
+        onPress={() => navigation.navigate('Questionnaire', { isMyProfile: false })}
+      >
         <Ionicons name="add" size={30} color="#fff" />
       </TouchableOpacity>
     </View>
@@ -52,6 +77,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingHorizontal: 20,
+    paddingBottom: 100,
   },
   friendCard: {
     flexDirection: 'row',
@@ -86,6 +112,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 5,
+  },
+  emptyContainer: {
+    marginTop: 50,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 18,
+    color: '#666',
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#aaa',
+    marginTop: 10,
   },
 });
 

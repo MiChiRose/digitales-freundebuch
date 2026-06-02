@@ -9,6 +9,7 @@ import FriendsScreen from '../screens/FriendsScreen';
 import MyProfileScreen from '../screens/MyProfileScreen';
 import SecretUnlockScreen from '../screens/SecretUnlockScreen';
 import ChatScreen from '../screens/ChatScreen';
+import QuestionnaireScreen from '../screens/QuestionnaireScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -50,6 +51,7 @@ const AppNavigator = () => {
       <Stack.Screen name="MainTabs" component={TabNavigator} />
       <Stack.Screen name="SecretUnlock" component={SecretUnlockScreen} />
       <Stack.Screen name="SecretChat" component={ChatScreen} />
+      <Stack.Screen name="Questionnaire" component={QuestionnaireScreen} />
     </Stack.Navigator>
   );
 };
