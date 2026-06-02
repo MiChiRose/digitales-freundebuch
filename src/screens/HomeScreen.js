@@ -1,18 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
+import { auth } from '../context/firebaseConfig';
+import { signInAnonymously } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = ({ navigation }) => {
   const { t, i18n } = useTranslation();
-  const [secretTaps, setSecretTaps] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [setupTaps, setSetupTaps] = useState(0);
+
+  useEffect(() => {
+    checkAdminStatus();
+  }, []);
+
+  const checkAdminStatus = async () => {
+    try {
+      if (!auth.currentUser) {
+        await signInAnonymously(auth);
+      }
+      const currentUid = auth.currentUser?.uid;
+      const storedAdminUid = await AsyncStorage.getItem('app_owner_uid');
+      
+      if (currentUid && storedAdminUid && currentUid === storedAdminUid) {
+        setIsAdmin(true);
+      }
+    } catch (e) {
+      console.error("Admin check failed", e);
+    }
+  };
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
   };
 
   const handleSOS = async () => {
-    // Note: Replace with the actual phone number including country code, e.g., '4915112345678'
     const unclePhoneNumber = '491234567890'; // Dummy number
     const message = t('common.sosMessage');
     const url = `whatsapp://send?phone=${unclePhoneNumber}&text=${encodeURIComponent(message)}`;
@@ -30,15 +53,39 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  const handleSecretTap = () => {
-    setSecretTaps(prev => prev + 1);
+  // Secret backdoor to assign THIS specific phone as the Owner
+  const handleSetupTap = async () => {
+    setSetupTaps(prev => prev + 1);
+    if (setupTaps === 9) { // 10 taps total
+      Alert.alert(
+        "Admin Setup",
+        "Möchtest du dieses Gerät als Hauptgerät (Nichte) registrieren?",
+        [
+          { text: "Abbrechen", style: "cancel" },
+          { 
+            text: "Registrieren", 
+            style: "destructive",
+            onPress: async () => {
+              if (auth.currentUser) {
+                await AsyncStorage.setItem('app_owner_uid', auth.currentUser.uid);
+                setIsAdmin(true);
+                Alert.alert("Erfolg", "Dieses Gerät ist nun registriert. SOS-Button ist aktiv.");
+              }
+            } 
+          }
+        ]
+      );
+      setSetupTaps(0);
+    }
   };
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <Text style={styles.welcome}>{t('common.welcome')}</Text>
+          <TouchableOpacity activeOpacity={1} onPress={handleSetupTap}>
+            <Text style={styles.welcome}>{t('common.welcome')}</Text>
+          </TouchableOpacity>
           <TouchableOpacity 
             onLongPress={() => navigation.navigate('SecretUnlock')}
             delayLongPress={2000}
@@ -47,14 +94,10 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity 
-          style={styles.mainCard} 
-          activeOpacity={1} 
-          onPress={handleSecretTap}
-        >
+        <View style={styles.mainCard}>
           <Ionicons name="book-outline" size={100} color="#ff6b6b" />
           <Text style={styles.subtitle}>{t('freundebuch.tagline')}</Text>
-        </TouchableOpacity>
+        </View>
 
         <View style={styles.langContainer}>
           <TouchableOpacity 
@@ -77,7 +120,7 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {secretTaps >= 5 && (
+        {isAdmin && (
           <TouchableOpacity style={styles.helpButton} onPress={handleSOS}>
             <Text style={styles.helpButtonText}>🆘 {t('common.helpUncle')}</Text>
           </TouchableOpacity>
