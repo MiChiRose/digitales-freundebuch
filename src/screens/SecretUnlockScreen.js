@@ -1,16 +1,57 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
+import { db, auth } from '../context/firebaseConfig';
+import { doc, getDoc, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { signInAnonymously } from 'firebase/auth';
 
 const SecretUnlockScreen = ({ navigation }) => {
   const { t } = useTranslation();
   const [code, setCode] = useState('');
-  const SECRET_CODE = '1234'; // In real app, this could be synced via Firebase
+  const [isChecking, setIsChecking] = useState(false);
 
-  const handleUnlock = () => {
-    if (code.length === 4) { // Allow any 4-digit code to act as a Room ID
-      navigation.navigate('SecretChat', { roomCode: code });
+  const handleUnlock = async () => {
+    if (code.length === 4) {
+      setIsChecking(true);
+      try {
+        if (!auth.currentUser) {
+          await signInAnonymously(auth);
+        }
+        
+        const myUid = auth.currentUser.uid;
+        const roomRef = doc(db, 'secret_rooms', code);
+        const roomSnap = await getDoc(roomRef);
+
+        if (!roomSnap.exists()) {
+          // Room does not exist, claim it
+          await setDoc(roomRef, { participants: [myUid] });
+          navigation.navigate('SecretChat', { roomCode: code });
+        } else {
+          const data = roomSnap.data();
+          const participants = data.participants || [];
+
+          if (participants.includes(myUid)) {
+            // Already a member
+            navigation.navigate('SecretChat', { roomCode: code });
+          } else if (participants.length < 2) {
+            // Room has space for one more friend
+            await updateDoc(roomRef, {
+              participants: arrayUnion(myUid)
+            });
+            navigation.navigate('SecretChat', { roomCode: code });
+          } else {
+            // Room is full (2 people max)
+            Alert.alert(t('common.error') || 'Error', t('secretChat.roomFull'));
+            setCode('');
+          }
+        }
+      } catch (error) {
+        console.error("Room lock error:", error);
+        Alert.alert(t('common.error') || 'Error', 'Verbindung fehlgeschlagen');
+      } finally {
+        setIsChecking(false);
+      }
     } else {
       Alert.alert(t('secretChat.wrongCode'), t('secretChat.tryAgain'));
       setCode('');
@@ -22,6 +63,7 @@ const SecretUnlockScreen = ({ navigation }) => {
       <TouchableOpacity 
         style={styles.backButton} 
         onPress={() => navigation.goBack()}
+        disabled={isChecking}
       >
         <Ionicons name="arrow-back" size={24} color="#333" />
       </TouchableOpacity>
@@ -37,10 +79,19 @@ const SecretUnlockScreen = ({ navigation }) => {
         secureTextEntry
         placeholder="****"
         maxLength={4}
+        editable={!isChecking}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleUnlock}>
-        <Text style={styles.buttonText}>{t('secretChat.unlock')}</Text>
+      <TouchableOpacity 
+        style={[styles.button, isChecking && styles.buttonDisabled]} 
+        onPress={handleUnlock}
+        disabled={isChecking}
+      >
+        {isChecking ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>{t('secretChat.unlock')}</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -84,6 +135,9 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 12,
+  },
+  buttonDisabled: {
+    backgroundColor: '#ffb3b3',
   },
   buttonText: {
     color: '#fff',

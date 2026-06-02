@@ -48,6 +48,7 @@
     "me": "Me",
     "placeholder": "Message...",
     "loading": "Loading messages...",
-    "empty": "No messages yet. Say hi!"
+    "empty": "No messages yet. Say hi!",
+    "roomFull": "This code is already used by others. Please choose a new code!"
   }
 }
