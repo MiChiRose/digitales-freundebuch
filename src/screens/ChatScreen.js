@@ -20,12 +20,16 @@ import {
   onSnapshot, 
   serverTimestamp,
   limit,
-  where
+  where,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs
 } from 'firebase/firestore';
 import { signInAnonymously } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ChatScreen = ({ route }) => {
+const ChatScreen = ({ route, navigation }) => {
   const { t } = useTranslation();
   const { roomCode } = route.params || { roomCode: 'default' };
   const [message, setMessage] = useState('');
@@ -33,6 +37,7 @@ const ChatScreen = ({ route }) => {
   const [userName, setUserName] = useState('Anonymous');
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [isCreator, setIsCreator] = useState(false);
   const flatListRef = React.useRef();
 
   useEffect(() => {
@@ -41,11 +46,24 @@ const ChatScreen = ({ route }) => {
     const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       if (user) {
         setCurrentUserId(user.uid);
+        checkIfCreator(user.uid);
         startListeningMessages();
       } else {
         signInAnonymously(auth).catch(console.error);
       }
     });
+
+    const checkIfCreator = async (uid) => {
+      try {
+        const roomRef = doc(db, 'secret_rooms', roomCode);
+        const roomSnap = await getDoc(roomRef);
+        if (roomSnap.exists() && roomSnap.data().creator === uid) {
+          setIsCreator(true);
+        }
+      } catch (e) {
+        console.error("Creator check error", e);
+      }
+    };
 
     const startListeningMessages = () => {
       // Query messages ONLY for this roomCode
@@ -68,7 +86,6 @@ const ChatScreen = ({ route }) => {
         });
         setMessages(msgs);
         setLoading(false);
-        // Scroll to bottom when new messages arrive
         setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 200);
       }, (error) => {
         console.error("Snapshot error:", error);
@@ -91,6 +108,37 @@ const ChatScreen = ({ route }) => {
       unsubscribeMessages();
     };
   }, [roomCode]);
+
+  const handleDeleteRoom = () => {
+    Alert.alert(
+      t('secretChat.deleteChat'),
+      t('secretChat.deleteConfirm'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        { 
+          text: t('common.save') === 'Save' ? 'Delete' : (t('common.save') === 'Сохранить' ? 'Удалить' : 'Löschen'), 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Delete room document
+              await deleteDoc(doc(db, 'secret_rooms', roomCode));
+              
+              // Optional: Delete messages for this room to clean up DB
+              const q = query(collection(db, 'secret_messages'), where('roomCode', '==', roomCode));
+              const snap = await getDocs(q);
+              snap.forEach(async (msgDoc) => {
+                await deleteDoc(doc(db, 'secret_messages', msgDoc.id));
+              });
+
+              navigation.goBack();
+            } catch (e) {
+              console.error("Delete room error", e);
+            }
+          }
+        }
+      ]
+    );
+  };
 
   const sendMessage = async () => {
     if (message.trim()) {
@@ -128,7 +176,17 @@ const ChatScreen = ({ route }) => {
       keyboardVerticalOffset={90}
     >
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerButton}>
+          <Ionicons name="arrow-back" size={24} color="#333" />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('secretChat.title')} (#{roomCode}) 🕵️‍♀️</Text>
+        {isCreator ? (
+          <TouchableOpacity onPress={handleDeleteRoom} style={styles.headerButton}>
+            <Ionicons name="trash-outline" size={24} color="#ff6b6b" />
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.headerButtonPlaceholder} />
+        )}
       </View>
 
       {loading ? (
@@ -172,10 +230,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f2f5',
   },
   header: {
+    flexDirection: 'row',
     backgroundColor: '#fff',
     paddingTop: 60,
     paddingBottom: 15,
+    paddingHorizontal: 15,
     alignItems: 'center',
+    justifyContent: 'space-between',
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
   },
@@ -183,6 +244,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
+  },
+  headerButton: {
+    padding: 5,
+  },
+  headerButtonPlaceholder: {
+    width: 34, // Approximate width of the icon button to keep title centered
   },
   chatList: {
     padding: 20,

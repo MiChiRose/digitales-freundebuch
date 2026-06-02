@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ActivityInd
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { db, auth } from '../context/firebaseConfig';
-import { doc, getDoc, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, arrayUnion, query, collection, where, getDocs } from 'firebase/firestore';
 import { signInAnonymously } from 'firebase/auth';
 
 const SecretUnlockScreen = ({ navigation }) => {
@@ -20,12 +20,34 @@ const SecretUnlockScreen = ({ navigation }) => {
         }
         
         const myUid = auth.currentUser.uid;
+
+        // Anti-spam: Check if I already belong to a DIFFERENT room
+        const roomsQuery = query(
+          collection(db, 'secret_rooms'),
+          where('participants', 'array-contains', myUid)
+        );
+        const myRoomsSnap = await getDocs(roomsQuery);
+        
+        let existingRoomId = null;
+        myRoomsSnap.forEach((doc) => {
+          if (doc.id !== code) {
+            existingRoomId = doc.id;
+          }
+        });
+
+        if (existingRoomId) {
+          Alert.alert(t('common.error') || 'Error', t('secretChat.alreadyInRoom', { code: existingRoomId }));
+          setCode('');
+          setIsChecking(false);
+          return;
+        }
+
         const roomRef = doc(db, 'secret_rooms', code);
         const roomSnap = await getDoc(roomRef);
 
         if (!roomSnap.exists()) {
-          // Room does not exist, claim it
-          await setDoc(roomRef, { participants: [myUid] });
+          // Room does not exist, claim it. Mark myself as creator.
+          await setDoc(roomRef, { participants: [myUid], creator: myUid });
           navigation.navigate('SecretChat', { roomCode: code });
         } else {
           const data = roomSnap.data();
