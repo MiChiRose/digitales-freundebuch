@@ -1,4 +1,5 @@
 import React from 'react';
+import { View, Text } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,18 +21,22 @@ const TabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+        tabBarIcon: ({ focused, size }) => {
+          let emoji;
 
           if (route.name === 'HomeTab') {
-            iconName = focused ? 'home' : 'home-outline';
+            emoji = '🏠';
           } else if (route.name === 'Friends') {
-            iconName = focused ? 'people' : 'people-outline';
+            emoji = '👯‍♀️';
           } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
+            emoji = '👤';
           }
 
-          return <Ionicons name={iconName} size={size} color={color} />;
+          return (
+            <View style={{ opacity: focused ? 1 : 0.5 }}>
+              <Text style={{ fontSize: size }}>{emoji}</Text>
+            </View>
+          );
         },
         tabBarActiveTintColor: '#ff6b6b',
         tabBarInactiveTintColor: 'gray',
