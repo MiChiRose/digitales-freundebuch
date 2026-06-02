@@ -19,23 +19,25 @@ import {
   orderBy, 
   onSnapshot, 
   serverTimestamp,
-  limit
+  limit,
+  where
 } from 'firebase/firestore';
 import { signInAnonymously } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ChatScreen = () => {
+const ChatScreen = ({ route }) => {
   const { t } = useTranslation();
+  const { roomCode } = route.params || { roomCode: 'default' };
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [userName, setUserName] = useState('Anonymous');
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const flatListRef = React.useRef();
 
   useEffect(() => {
     let unsubscribeMessages = () => {};
     
-    // Listen for auth state changes
     const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       if (user) {
         setCurrentUserId(user.uid);
@@ -46,10 +48,12 @@ const ChatScreen = () => {
     });
 
     const startListeningMessages = () => {
+      // Query messages ONLY for this roomCode
       const q = query(
         collection(db, "secret_messages"), 
-        orderBy("createdAt", "desc"),
-        limit(50)
+        where("roomCode", "==", roomCode),
+        orderBy("createdAt", "asc"), // Normal order: old top, new bottom
+        limit(100)
       );
 
       unsubscribeMessages = onSnapshot(q, (querySnapshot) => {
@@ -64,6 +68,8 @@ const ChatScreen = () => {
         });
         setMessages(msgs);
         setLoading(false);
+        // Scroll to bottom when new messages arrive
+        setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 200);
       }, (error) => {
         console.error("Snapshot error:", error);
         setLoading(false);
@@ -84,7 +90,7 @@ const ChatScreen = () => {
       unsubscribeAuth();
       unsubscribeMessages();
     };
-  }, []);
+  }, [roomCode]);
 
   const sendMessage = async () => {
     if (message.trim()) {
@@ -95,6 +101,7 @@ const ChatScreen = () => {
           text: textToSend,
           sender: userName,
           senderId: auth.currentUser?.uid || 'unknown',
+          roomCode: roomCode, // Attach room code to message
           createdAt: serverTimestamp(),
         });
       } catch (e) {
@@ -121,7 +128,7 @@ const ChatScreen = () => {
       keyboardVerticalOffset={90}
     >
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('secretChat.title')} 🕵️‍♀️</Text>
+        <Text style={styles.headerTitle}>{t('secretChat.title')} (#{roomCode}) 🕵️‍♀️</Text>
       </View>
 
       {loading ? (
@@ -130,11 +137,12 @@ const ChatScreen = () => {
         </View>
       ) : (
         <FlatList
+          ref={flatListRef}
           data={messages}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.chatList}
-          inverted
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
           ListEmptyComponent={
             <View style={styles.emptyChat}>
               <Text>{t('secretChat.empty')}</Text>
@@ -219,7 +227,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 50,
-    transform: [{ scaleY: -1 }], // Invert because list is inverted
   },
   inputContainer: {
     flexDirection: 'row',
