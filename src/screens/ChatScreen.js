@@ -164,7 +164,7 @@ const ChatScreen = ({ route, navigation }) => {
     return (
       <View style={[styles.messageBubble, isMe ? styles.myMessage : styles.theirMessage]}>
         <Text style={styles.senderName}>{isMe ? t('secretChat.me') : item.sender}</Text>
-        <Text style={styles.messageText}>{item.text}</Text>
+        <Text style={isMe ? styles.myMessageText : styles.messageText}>{item.text}</Text>
         <Text style={styles.messageTime}>{item.time}</Text>
       </View>
     );
@@ -228,7 +228,7 @@ const ChatScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f2f5',
+    backgroundColor: '#F8F6FF',
   },
   header: {
     flexDirection: 'row',
@@ -239,12 +239,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: '#E9E3FF',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#4A4063',
   },
   headerButton: {
     padding: 5,
@@ -263,25 +263,31 @@ const styles = StyleSheet.create({
   },
   myMessage: {
     alignSelf: 'flex-end',
-    backgroundColor: '#ff6b6b',
+    backgroundColor: '#A78BFA',
   },
   theirMessage: {
     alignSelf: 'flex-start',
     backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#E9E3FF',
   },
   senderName: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#555',
+    color: '#7C7392',
     marginBottom: 4,
   },
   messageText: {
     fontSize: 16,
-    color: '#000',
+    color: '#4A4063',
+  },
+  myMessageText: {
+    fontSize: 16,
+    color: '#fff',
   },
   messageTime: {
     fontSize: 10,
-    color: '#999',
+    color: '#A09CAB',
     alignSelf: 'flex-end',
     marginTop: 4,
   },
@@ -301,17 +307,20 @@ const styles = StyleSheet.create({
     padding: 15,
     backgroundColor: '#fff',
     alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#E9E3FF',
   },
   input: {
     flex: 1,
     height: 45,
-    backgroundColor: '#f0f2f5',
+    backgroundColor: '#F4F0FF',
     borderRadius: 22,
     paddingHorizontal: 20,
     marginRight: 10,
+    color: '#4A4063',
   },
   sendButton: {
-    backgroundColor: '#ff6b6b',
+    backgroundColor: '#8EE4AF',
     width: 45,
     height: 45,
     borderRadius: 22,
