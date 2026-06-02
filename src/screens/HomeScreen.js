@@ -87,6 +87,32 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
+  const handleSecretChatAccess = async () => {
+    try {
+      const myData = await AsyncStorage.getItem('my_profile');
+      if (myData) {
+        const parsed = JSON.parse(myData);
+        // Check if all crucial fields are filled
+        if (parsed.name && parsed.age && parsed.hobby && parsed.food && parsed.dream) {
+          navigation.navigate('SecretUnlock');
+          return;
+        }
+      }
+      
+      // If data is missing or not complete
+      Alert.alert(
+        t('secretChat.profileRequired'),
+        t('secretChat.profileRequiredMsg'),
+        [
+          { text: t('common.cancel'), style: 'cancel' },
+          { text: t('common.edit'), onPress: () => navigation.navigate('Questionnaire', { isMyProfile: true }) }
+        ]
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -95,7 +121,7 @@ const HomeScreen = ({ navigation }) => {
             <Text style={styles.welcome}>{t('common.welcome')}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            onLongPress={() => navigation.navigate('SecretUnlock')}
+            onLongPress={handleSecretChatAccess}
             delayLongPress={2000}
           >
             <Text style={styles.title}>{t('freundebuch.title')}</Text>
