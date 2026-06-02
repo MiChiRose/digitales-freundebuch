@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -23,6 +23,30 @@ const FriendsScreen = ({ navigation }) => {
       }
     } catch (e) {
       console.error('Failed to load friends list', e);
+    }
+  };
+
+  const handleAddFriend = async () => {
+    try {
+      const myData = await AsyncStorage.getItem('my_profile');
+      if (myData) {
+        const parsed = JSON.parse(myData);
+        if (parsed.name && parsed.age && parsed.hobby && parsed.food && parsed.dream) {
+          navigation.navigate('Questionnaire', { isMyProfile: false });
+          return;
+        }
+      }
+      
+      Alert.alert(
+        t('secretChat.profileRequired'),
+        t('secretChat.profileRequiredMsg'),
+        [
+          { text: t('common.cancel'), style: 'cancel' },
+          { text: t('common.edit'), onPress: () => navigation.navigate('Questionnaire', { isMyProfile: true }) }
+        ]
+      );
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -54,7 +78,7 @@ const FriendsScreen = ({ navigation }) => {
       />
       <TouchableOpacity 
         style={styles.addButton}
-        onPress={() => navigation.navigate('Questionnaire', { isMyProfile: false })}
+        onPress={handleAddFriend}
       >
         <Ionicons name="add" size={30} color="#fff" />
       </TouchableOpacity>

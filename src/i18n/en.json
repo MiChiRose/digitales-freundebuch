@@ -54,6 +54,8 @@
     "roomFull": "This code is already used by others. Please choose a new code!",
     "alreadyInRoom": "You already have a chat (#{{code}}). Delete it first!",
     "deleteChat": "Delete Chat",
-    "deleteConfirm": "Do you really want to delete this chat forever?"
+    "deleteConfirm": "Do you really want to delete this chat forever?",
+    "profileRequired": "Profile Incomplete",
+    "profileRequiredMsg": "Please fill out your profile completely before chatting or adding friends!"
   }
 }
