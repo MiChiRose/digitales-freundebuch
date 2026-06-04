@@ -12,6 +12,7 @@ const HomeScreen = ({ navigation }) => {
   const { t, i18n } = useTranslation();
   const [isAdmin, setIsAdmin] = useState(false);
   const [setupTaps, setSetupTaps] = useState(0);
+  const [complimentIndex, setComplimentIndex] = useState(-1);
   
   // Easter Egg State
   const [catTaps, setCatTaps] = useState(0);
@@ -21,7 +22,17 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     checkAdminStatus();
+    if (complimentIndex === -1) {
+      const compliments = t('common.compliments', { returnObjects: true });
+      if (Array.isArray(compliments) && compliments.length > 0) {
+        setComplimentIndex(Math.floor(Math.random() * compliments.length));
+      }
+    }
   }, []);
+
+  const dailyMessage = complimentIndex !== -1 
+    ? t(`common.compliments.${complimentIndex}`) 
+    : '';
 
   const checkAdminStatus = async () => {
     try {
@@ -65,7 +76,7 @@ const HomeScreen = ({ navigation }) => {
       }
     } catch (error) {
       console.error('An error occurred', error);
-      Alert.alert(t('common.error'), 'Ein Fehler ist aufgetreten.');
+      Alert.alert(t('common.error'), 'Ein Fehler ist наступил.');
     }
   };
 
@@ -164,6 +175,12 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
+        {dailyMessage ? (
+          <View style={styles.complimentCard}>
+            <Text style={styles.complimentText}>{dailyMessage}</Text>
+          </View>
+        ) : null}
+
         <TouchableOpacity 
           activeOpacity={1} 
           onPress={handleCatTap}
@@ -234,6 +251,28 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#4A4063', // Deep plum/grey
     textAlign: 'center',
+  },
+  complimentCard: {
+    backgroundColor: '#FFF5F8', // Very light pink
+    padding: 20,
+    borderRadius: 20,
+    width: '100%',
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#FFD1DC',
+    alignItems: 'center',
+    shadowColor: '#FFD1DC',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  complimentText: {
+    fontSize: 16,
+    color: '#8B5E83', // Muted rose
+    textAlign: 'center',
+    fontWeight: '600',
+    fontStyle: 'italic',
   },
   mainCard: {
     backgroundColor: '#fff',
