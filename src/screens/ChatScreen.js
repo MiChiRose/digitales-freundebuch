@@ -29,9 +29,11 @@ import {
 } from 'firebase/firestore';
 import { signInAnonymously } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from '../context/ThemeContext';
 
 const ChatScreen = ({ route, navigation }) => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const { roomCode } = route.params || { roomCode: 'default' };
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
@@ -67,11 +69,10 @@ const ChatScreen = ({ route, navigation }) => {
     };
 
     const startListeningMessages = () => {
-      // Query messages ONLY for this roomCode
       const q = query(
         collection(db, "secret_messages"), 
         where("roomCode", "==", roomCode),
-        orderBy("createdAt", "asc"), // Normal order: old top, new bottom
+        orderBy("createdAt", "asc"),
         limit(100)
       );
 
@@ -121,16 +122,12 @@ const ChatScreen = ({ route, navigation }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              // Delete room document
               await deleteDoc(doc(db, 'secret_rooms', roomCode));
-              
-              // Optional: Delete messages for this room to clean up DB
               const q = query(collection(db, 'secret_messages'), where('roomCode', '==', roomCode));
               const snap = await getDocs(q);
               snap.forEach(async (msgDoc) => {
                 await deleteDoc(doc(db, 'secret_messages', msgDoc.id));
               });
-
               navigation.goBack();
             } catch (e) {
               console.error("Delete room error", e);
@@ -150,7 +147,7 @@ const ChatScreen = ({ route, navigation }) => {
           text: textToSend,
           sender: userName,
           senderId: auth.currentUser?.uid || 'unknown',
-          roomCode: roomCode, // Attach room code to message
+          roomCode: roomCode,
           createdAt: serverTimestamp(),
         });
       } catch (e) {
@@ -162,25 +159,34 @@ const ChatScreen = ({ route, navigation }) => {
   const renderItem = ({ item }) => {
     const isMe = item.senderId === currentUserId;
     return (
-      <View style={[styles.messageBubble, isMe ? styles.myMessage : styles.theirMessage]}>
-        <Text style={styles.senderName}>{isMe ? t('secretChat.me') : item.sender}</Text>
-        <Text style={isMe ? styles.myMessageText : styles.messageText}>{item.text}</Text>
-        <Text style={styles.messageTime}>{item.time}</Text>
+      <View style={[
+        styles.messageBubble, 
+        isMe ? [styles.myMessage, { backgroundColor: theme.primary }] : [styles.theirMessage, { backgroundColor: theme.card, borderColor: theme.accent }]
+      ]}>
+        <Text style={[styles.senderName, { color: isMe ? theme.buttonText + 'CC' : theme.text + '80' }]}>
+          {isMe ? t('secretChat.me') : item.sender}
+        </Text>
+        <Text style={isMe ? [styles.myMessageText, { color: theme.buttonText }] : [styles.messageText, { color: theme.text }]}>
+          {item.text}
+        </Text>
+        <Text style={[styles.messageTime, { color: isMe ? theme.buttonText + '99' : theme.text + '60' }]}>
+          {item.time}
+        </Text>
       </View>
     );
   };
 
   return (
     <KeyboardAvoidingView 
-      style={styles.container} 
+      style={[styles.container, { backgroundColor: theme.secondary }]} 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={90}
     >
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.accent }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerButton}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="arrow-back" size={24} color={theme.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('secretChat.title')} (#{roomCode}) 🕵️‍♀️</Text>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>{t('secretChat.title')} (#{roomCode}) 🕵️‍♀️</Text>
         {isCreator ? (
           <TouchableOpacity onPress={handleDeleteRoom} style={styles.headerButton}>
             <Ionicons name="trash-outline" size={24} color="#ff6b6b" />
@@ -192,7 +198,7 @@ const ChatScreen = ({ route, navigation }) => {
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <Text>{t('secretChat.loading')}</Text>
+          <Text style={{ color: theme.text }}>{t('secretChat.loading')}</Text>
         </View>
       ) : (
         <FlatList
@@ -204,21 +210,22 @@ const ChatScreen = ({ route, navigation }) => {
           onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
           ListEmptyComponent={
             <View style={styles.emptyChat}>
-              <Text>{t('secretChat.empty')}</Text>
+              <Text style={{ color: theme.text }}>{t('secretChat.empty')}</Text>
             </View>
           }
         />
       )}
 
-      <View style={styles.inputContainer}>
+      <View style={[styles.inputContainer, { backgroundColor: theme.card, borderTopColor: theme.accent }]}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: theme.secondary, color: theme.text }]}
           value={message}
           onChangeText={setMessage}
           placeholder={t('secretChat.placeholder')}
+          placeholderTextColor={theme.text + '60'}
         />
-        <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-          <Ionicons name="send" size={24} color="#fff" />
+        <TouchableOpacity style={[styles.sendButton, { backgroundColor: theme.primary }]} onPress={sendMessage}>
+          <Ionicons name="send" size={24} color={theme.buttonText} />
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -228,29 +235,25 @@ const ChatScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F6FF',
   },
   header: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
     paddingTop: 60,
     paddingBottom: 15,
     paddingHorizontal: 15,
     alignItems: 'center',
     justifyContent: 'space-between',
     borderBottomWidth: 1,
-    borderBottomColor: '#E9E3FF',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#4A4063',
   },
   headerButton: {
     padding: 5,
   },
   headerButtonPlaceholder: {
-    width: 34, // Approximate width of the icon button to keep title centered
+    width: 34,
   },
   chatList: {
     padding: 20,
@@ -263,31 +266,24 @@ const styles = StyleSheet.create({
   },
   myMessage: {
     alignSelf: 'flex-end',
-    backgroundColor: '#A78BFA',
   },
   theirMessage: {
     alignSelf: 'flex-start',
-    backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#E9E3FF',
   },
   senderName: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#7C7392',
     marginBottom: 4,
   },
   messageText: {
     fontSize: 16,
-    color: '#4A4063',
   },
   myMessageText: {
     fontSize: 16,
-    color: '#fff',
   },
   messageTime: {
     fontSize: 10,
-    color: '#A09CAB',
     alignSelf: 'flex-end',
     marginTop: 4,
   },
@@ -305,22 +301,17 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     padding: 15,
-    backgroundColor: '#fff',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#E9E3FF',
   },
   input: {
     flex: 1,
     height: 45,
-    backgroundColor: '#F4F0FF',
     borderRadius: 22,
     paddingHorizontal: 20,
     marginRight: 10,
-    color: '#4A4063',
   },
   sendButton: {
-    backgroundColor: '#8EE4AF',
     width: 45,
     height: 45,
     borderRadius: 22,

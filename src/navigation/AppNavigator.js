@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../context/ThemeContext';
 
 import HomeScreen from '../screens/HomeScreen';
 import FriendsScreen from '../screens/FriendsScreen';
@@ -17,6 +18,7 @@ const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
 
   return (
     <Tab.Navigator
@@ -38,8 +40,12 @@ const TabNavigator = () => {
             </View>
           );
         },
-        tabBarActiveTintColor: '#A78BFA',
-        tabBarInactiveTintColor: '#A09CAB',
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.text + '80',
+        tabBarStyle: {
+          backgroundColor: theme.card,
+          borderTopColor: theme.accent,
+        },
         headerShown: false,
       })}
     >
@@ -51,7 +57,6 @@ const TabNavigator = () => {
 };
 
 const AppNavigator = () => {
-  const { t } = useTranslation();
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MainTabs" component={TabNavigator} />

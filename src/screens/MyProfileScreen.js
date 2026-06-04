@@ -44,7 +44,7 @@ const MyProfileScreen = ({ navigation }) => {
             <Text style={styles.avatarText}>{profile?.mood || '👤'}</Text>
           </View>
           <Text style={[styles.name, { color: theme.text }]}>{profile?.name || t('freundebuch.yourName')}</Text>
-          
+
           <View style={[styles.infoContainer, { backgroundColor: theme.secondary + '40' }]}>
             <Text style={[styles.infoText, { color: theme.text }]}>🎂 {t('freundebuch.fields.age')}: {profile?.age || '?'}</Text>
             <Text style={[styles.infoText, { color: theme.text }]}>🎨 {t('freundebuch.fields.hobby')}: {profile?.hobby || '?'}</Text>
@@ -52,7 +52,7 @@ const MyProfileScreen = ({ navigation }) => {
             <Text style={[styles.infoText, { color: theme.text }]}>🌈 {t('freundebuch.fields.dream')}: {profile?.dream || '?'}</Text>
           </View>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.editButton, { backgroundColor: theme.primary, shadowColor: theme.primary }]}
             onPress={() => navigation.navigate('Questionnaire', { isMyProfile: true })}
           >
@@ -84,39 +84,39 @@ const MyProfileScreen = ({ navigation }) => {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}>{t('common.languageTitle')}</Text>
           <View style={styles.langContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[
-                styles.langButton, 
+                styles.langButton,
                 { backgroundColor: theme.accent + '40' },
                 i18n.language === 'de' && [styles.langButtonActive, { backgroundColor: theme.accent, borderColor: theme.primary }]
-              ]} 
+              ]}
               onPress={() => changeLanguage('de')}
             >
               <Text style={[styles.langText, { color: theme.text }]}>🇩🇪 DE</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[
-                styles.langButton, 
+                styles.langButton,
                 { backgroundColor: theme.accent + '40' },
                 i18n.language === 'en' && [styles.langButtonActive, { backgroundColor: theme.accent, borderColor: theme.primary }]
-              ]} 
+              ]}
               onPress={() => changeLanguage('en')}
             >
               <Text style={[styles.langText, { color: theme.text }]}>🇺🇸 EN</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[
-                styles.langButton, 
+                styles.langButton,
                 { backgroundColor: theme.accent + '40' },
                 i18n.language === 'ru' && [styles.langButtonActive, { backgroundColor: theme.accent, borderColor: theme.primary }]
-              ]} 
+              ]}
               onPress={() => changeLanguage('ru')}
             >
               <Text style={[styles.langText, { color: theme.text }]}>🇷🇺 RU</Text>
             </TouchableOpacity>
           </View>
         </View>
-        
+
         <View style={{ height: 40 }} />
       </ScrollView>
     </View>
@@ -209,23 +209,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
+    paddingHorizontal: 5,
   },
   themeButton: {
     width: 55,
     height: 55,
-    borderRadius: 15,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    marginVertical: 5,
   },
   themeButtonActive: {
     borderWidth: 3,
     borderColor: '#FFFFFF',
     transform: [{ scale: 1.1 }],
+    // Shadow settings only for active button
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
   },
   themeIcon: {
     fontSize: 24,

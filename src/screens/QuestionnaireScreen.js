@@ -13,9 +13,11 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from '../context/ThemeContext';
 
 const QuestionnaireScreen = ({ navigation, route }) => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const { profileId, isMyProfile } = route.params || {};
   
   const [formData, setFormData] = useState({
@@ -47,7 +49,6 @@ const QuestionnaireScreen = ({ navigation, route }) => {
     try {
       const storageKey = isMyProfile ? 'my_profile' : `friend_${profileId || Date.now()}`;
       
-      // If it's a new friend, we need to add them to the friends list too
       if (!isMyProfile && !profileId) {
         const friendsListRaw = await AsyncStorage.getItem('friends_list');
         let friendsList = friendsListRaw ? JSON.parse(friendsListRaw) : [];
@@ -55,7 +56,6 @@ const QuestionnaireScreen = ({ navigation, route }) => {
         friendsList.push(newFriend);
         await AsyncStorage.setItem('friends_list', JSON.stringify(friendsList));
       } else if (!isMyProfile && profileId) {
-        // Update existing friend in the list
         const friendsListRaw = await AsyncStorage.getItem('friends_list');
         if (friendsListRaw) {
           let friendsList = JSON.parse(friendsListRaw);
@@ -77,29 +77,29 @@ const QuestionnaireScreen = ({ navigation, route }) => {
 
   const renderField = (field, labelKey, placeholderKey) => (
     <View style={styles.fieldContainer}>
-      <Text style={styles.label}>{t(`freundebuch.fields.${labelKey}`)}</Text>
+      <Text style={[styles.label, { color: theme.primary }]}>{t(`freundebuch.fields.${labelKey}`)}</Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, { backgroundColor: theme.card, color: theme.text, borderColor: theme.accent }]}
         value={formData[field]}
         onChangeText={(text) => setFormData({ ...formData, [field]: text })}
         placeholder={t(`freundebuch.placeholders.${placeholderKey}`)}
-        placeholderTextColor="#aaa"
+        placeholderTextColor={theme.text + '60'}
       />
     </View>
   );
 
   return (
     <KeyboardAvoidingView 
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.secondary }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.accent }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="close" size={30} color="#333" />
+          <Ionicons name="close" size={30} color={theme.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('freundebuch.questionnaire')}</Text>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>{t('freundebuch.questionnaire')}</Text>
         <TouchableOpacity onPress={saveData}>
-          <Ionicons name="checkmark" size={30} color="#4ecdc4" />
+          <Ionicons name="checkmark" size={30} color={theme.primary} />
         </TouchableOpacity>
       </View>
 
@@ -111,12 +111,15 @@ const QuestionnaireScreen = ({ navigation, route }) => {
         {renderField('dream', 'dream', 'dream')}
         
         <View style={styles.fieldContainer}>
-          <Text style={styles.label}>{t('freundebuch.fields.mood')}</Text>
-          <View style={styles.moodContainer}>
+          <Text style={[styles.label, { color: theme.primary }]}>{t('freundebuch.fields.mood')}</Text>
+          <View style={[styles.moodContainer, { backgroundColor: theme.card, borderColor: theme.accent }]}>
             {['😊', '😎', '🎨', '🐾', '🍦', '🎮'].map((m) => (
               <TouchableOpacity 
                 key={m} 
-                style={[styles.moodItem, formData.mood === m && styles.moodSelected]}
+                style={[
+                  styles.moodItem, 
+                  formData.mood === m && [styles.moodSelected, { backgroundColor: theme.accent, borderColor: theme.primary }]
+                ]}
                 onPress={() => setFormData({ ...formData, mood: m })}
               >
                 <Text style={styles.moodText}>{m}</Text>
@@ -125,8 +128,11 @@ const QuestionnaireScreen = ({ navigation, route }) => {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.saveButton} onPress={saveData}>
-          <Text style={styles.saveButtonText}>{t('common.save')}</Text>
+        <TouchableOpacity 
+          style={[styles.saveButton, { backgroundColor: theme.primary, shadowColor: theme.primary }]} 
+          onPress={saveData}
+        >
+          <Text style={[styles.saveButtonText, { color: theme.buttonText }]}>{t('common.save')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -136,7 +142,6 @@ const QuestionnaireScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F6FF',
   },
   header: {
     flexDirection: 'row',
@@ -145,14 +150,11 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: 20,
-    backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#E9E3FF',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#4A4063',
   },
   scrollContent: {
     padding: 20,
@@ -163,28 +165,22 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#A78BFA',
     marginBottom: 8,
     marginLeft: 4,
   },
   input: {
-    backgroundColor: '#fff',
     borderRadius: 15,
     padding: 15,
     fontSize: 16,
-    color: '#4A4063',
     borderWidth: 1,
-    borderColor: '#E9E3FF',
   },
   moodContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 10,
-    backgroundColor: '#fff',
     padding: 10,
     borderRadius: 15,
     borderWidth: 1,
-    borderColor: '#E9E3FF',
   },
   moodItem: {
     padding: 10,
@@ -192,28 +188,23 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   moodSelected: {
-    backgroundColor: '#E9E3FF',
     borderWidth: 1,
-    borderColor: '#A78BFA',
   },
   moodText: {
     fontSize: 24,
   },
   saveButton: {
-    backgroundColor: '#8EE4AF',
     padding: 18,
     borderRadius: 15,
     alignItems: 'center',
     marginTop: 20,
     marginBottom: 40,
-    shadowColor: '#8EE4AF',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 5,
   },
   saveButtonText: {
-    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
   },

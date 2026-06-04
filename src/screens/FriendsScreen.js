@@ -4,9 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { useTheme } from '../context/ThemeContext';
 
 const FriendsScreen = ({ navigation }) => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const [friends, setFriends] = useState([]);
 
   useFocusEffect(
@@ -52,18 +54,18 @@ const FriendsScreen = ({ navigation }) => {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity 
-      style={styles.friendCard}
+      style={[styles.friendCard, { backgroundColor: theme.card, shadowColor: theme.primary }]}
       onPress={() => navigation.navigate('Questionnaire', { profileId: item.id, isMyProfile: false })}
     >
       <Text style={styles.friendEmoji}>{item.mood}</Text>
-      <Text style={styles.friendName}>{item.name || t('common.noName')}</Text>
-      <Ionicons name="chevron-forward" size={20} color="#ccc" />
+      <Text style={[styles.friendName, { color: theme.text }]}>{item.name || t('common.noName')}</Text>
+      <Ionicons name="chevron-forward" size={20} color={theme.accent} />
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.headerTitle}>{t('freundebuch.friends')}</Text>
+    <View style={[styles.container, { backgroundColor: theme.secondary }]}>
+      <Text style={[styles.headerTitle, { color: theme.text }]}>{t('freundebuch.friends')}</Text>
       <FlatList
         data={friends}
         renderItem={renderItem}
@@ -71,16 +73,16 @@ const FriendsScreen = ({ navigation }) => {
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>{t('common.emptyFriends')}</Text>
-            <Text style={styles.emptySubtext}>{t('common.addFriendHint')}</Text>
+            <Text style={[styles.emptyText, { color: theme.text + '80' }]}>{t('common.emptyFriends')}</Text>
+            <Text style={[styles.emptySubtext, { color: theme.text + '60' }]}>{t('common.addFriendHint')}</Text>
           </View>
         }
       />
       <TouchableOpacity 
-        style={styles.addButton}
+        style={[styles.addButton, { backgroundColor: theme.primary, shadowColor: theme.primary }]}
         onPress={handleAddFriend}
       >
-        <Ionicons name="add" size={30} color="#fff" />
+        <Ionicons name="add" size={30} color={theme.buttonText} />
       </TouchableOpacity>
     </View>
   );
@@ -89,7 +91,6 @@ const FriendsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F6FF',
     paddingTop: 60,
   },
   headerTitle: {
@@ -97,7 +98,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 20,
     marginBottom: 20,
-    color: '#4A4063',
   },
   listContainer: {
     paddingHorizontal: 20,
@@ -106,11 +106,9 @@ const styles = StyleSheet.create({
   friendCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
     padding: 15,
     borderRadius: 15,
     marginBottom: 12,
-    shadowColor: '#A78BFA',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
     shadowRadius: 6,
@@ -124,19 +122,16 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontWeight: '500',
-    color: '#4A4063',
   },
   addButton: {
     position: 'absolute',
     bottom: 30,
     right: 30,
-    backgroundColor: '#8EE4AF', // Mint Green for adding
     width: 60,
     height: 60,
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#8EE4AF',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
@@ -148,12 +143,10 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 18,
-    color: '#7C7392',
     fontWeight: '600',
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#A09CAB',
     marginTop: 10,
   },
 });
