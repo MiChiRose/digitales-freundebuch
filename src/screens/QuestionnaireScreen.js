@@ -20,6 +20,7 @@ const QuestionnaireScreen = ({ navigation, route }) => {
   const { theme } = useTheme();
   const { profileId, isMyProfile } = route.params || {};
   const scrollRef = useRef(null);
+  const currentScrollX = useRef(0);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -77,7 +78,8 @@ const QuestionnaireScreen = ({ navigation, route }) => {
   };
 
   const scrollRight = () => {
-    scrollRef.current?.scrollTo({ x: 200, animated: true });
+    currentScrollX.current += 200;
+    scrollRef.current?.scrollTo({ x: currentScrollX.current, animated: true });
   };
 
   const renderField = (field, labelKey, placeholderKey) => (
@@ -122,6 +124,10 @@ const QuestionnaireScreen = ({ navigation, route }) => {
               ref={scrollRef}
               horizontal 
               showsHorizontalScrollIndicator={false} 
+              onScroll={(e) => {
+                currentScrollX.current = e.nativeEvent.contentOffset.x;
+              }}
+              scrollEventThrottle={16}
               style={[styles.moodScroll, { backgroundColor: theme.card, borderColor: theme.accent }]}
               contentContainerStyle={styles.moodScrollContent}
             >
