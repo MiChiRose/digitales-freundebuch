@@ -1,11 +1,12 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Alert, Clipboard } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
 import * as Application from 'expo-application';
+import * as Clipboard from 'expo-clipboard';
 import NetInfo from '@react-native-community/netinfo';
 import { db } from '../context/firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
@@ -44,14 +45,9 @@ const MyProfileScreen = ({ navigation }) => {
     }
   };
 
-  const getUniqueId = async () => {
-    // Application.androidId is more unique than device name + model
-    return Application.androidId || 'unknown_device';
-  };
-
   const checkOwnerStatus = async () => {
     try {
-      const id = await getUniqueId();
+      const id = await Application.getAndroidId();
       setDeviceId(id);
       
       const configRef = doc(db, 'config', 'app_owner');
@@ -70,12 +66,12 @@ const MyProfileScreen = ({ navigation }) => {
 
   const handleHeaderTap = () => {
     setDebugTaps(prev => prev + 1);
-    if (debugTaps >= 9) { // 10 taps to make it even harder to find by accident
+    if (debugTaps >= 9) { // 10 taps total
       Alert.alert(
         t('common.diagnosticTitle'),
         t('common.diagnosticMsg', { id: deviceId }),
         [
-          { text: "Copy", onPress: () => Clipboard.setString(deviceId) },
+          { text: "Copy", onPress: () => Clipboard.setStringAsync(deviceId) },
           { text: "OK" }
         ]
       );
@@ -114,15 +110,15 @@ const MyProfileScreen = ({ navigation }) => {
     <View style={[styles.container, { backgroundColor: theme.secondary }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={[styles.headerTitle, { color: theme.text }]}>{t('freundebuch.myProfile')}</Text>
+          <TouchableOpacity activeOpacity={1} onPress={handleHeaderTap}>
+            <Text style={[styles.headerTitle, { color: theme.text }]}>{t('freundebuch.myProfile')}</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={[styles.profileCard, { backgroundColor: theme.card, shadowColor: theme.primary }]}>
-          <TouchableOpacity activeOpacity={1} onPress={handleAvatarTap}>
-            <View style={[styles.avatarPlaceholder, { backgroundColor: theme.secondary, borderColor: theme.primary }]}>
-              <Text style={styles.avatarText}>{profile?.mood || '👤'}</Text>
-            </View>
-          </TouchableOpacity>
+          <View style={[styles.avatarPlaceholder, { backgroundColor: theme.secondary, borderColor: theme.primary }]}>
+            <Text style={styles.avatarText}>{profile?.mood || '👤'}</Text>
+          </View>
           <Text style={[styles.name, { color: theme.text }]}>{profile?.name || t('freundebuch.yourName')}</Text>
           
           <View style={[styles.infoContainer, { backgroundColor: theme.secondary + '40' }]}>
