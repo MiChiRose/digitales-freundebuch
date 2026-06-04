@@ -5,11 +5,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { auth } from '../context/firebaseConfig';
 import { signInAnonymously } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from '../context/ThemeContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const { theme } = useTheme();
   const [isAdmin, setIsAdmin] = useState(false);
   const [setupTaps, setSetupTaps] = useState(0);
   const [complimentIndex, setComplimentIndex] = useState(-1);
@@ -50,12 +52,7 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-  };
-
   const handleSOS = async () => {
-    // Read the phone number from environment variables securely
     const unclePhoneNumber = process.env.EXPO_PUBLIC_UNCLE_PHONE;
     
     if (!unclePhoneNumber) {
@@ -83,7 +80,7 @@ const HomeScreen = ({ navigation }) => {
   // Secret backdoor to assign THIS specific phone as the Owner
   const handleSetupTap = async () => {
     setSetupTaps(prev => prev + 1);
-    if (setupTaps === 9) { // 10 taps total
+    if (setupTaps === 9) {
       Alert.alert(
         "Admin Setup",
         "Möchtest du dieses Gerät als Hauptgerät (Nichte) registrieren?",
@@ -96,7 +93,7 @@ const HomeScreen = ({ navigation }) => {
               if (auth.currentUser) {
                 await AsyncStorage.setItem('app_owner_uid', auth.currentUser.uid);
                 setIsAdmin(true);
-                Alert.alert("Erfolg", "Dieses Gerät ist nun registriert. SOS-Button ist aktiv.");
+                Alert.alert("Erfolg", "Dieses Gerät ist nun registriert. SOS-Button ist актив.");
               }
             } 
           }
@@ -132,10 +129,8 @@ const HomeScreen = ({ navigation }) => {
 
   const handleCatTap = () => {
     if (isCatRunning) return;
-    
     const newTaps = catTaps + 1;
     setCatTaps(newTaps);
-    
     if (newTaps >= 10) {
       setCatTaps(0);
       runCatAnimation();
@@ -143,77 +138,53 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const runCatAnimation = () => {
-    // Generate a random vertical position between 10% and 85% to keep it within the screen
     const randomY = Math.floor(Math.random() * 75) + 10;
     setCatVerticalPos(`${randomY}%`);
-    
     setIsCatRunning(true);
-    catPosition.setValue(-100); // Start off-screen left
-    
+    catPosition.setValue(-100);
     Animated.timing(catPosition, {
-      toValue: SCREEN_WIDTH + 100, // Move off-screen right
-      duration: 2500, // 2.5 seconds to run across
+      toValue: SCREEN_WIDTH + 100,
+      duration: 2500,
       easing: Easing.linear,
       useNativeDriver: true,
     }).start(() => {
-      setIsCatRunning(false); // Reset when done
+      setIsCatRunning(false);
     });
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.secondary }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <TouchableOpacity activeOpacity={1} onPress={handleSetupTap}>
-            <Text style={styles.welcome}>{t('common.welcome')}</Text>
+            <Text style={[styles.welcome, { color: theme.text + '80' }]}>{t('common.welcome')}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             onLongPress={handleSecretChatAccess}
             delayLongPress={2000}
           >
-            <Text style={styles.title}>{t('freundebuch.title')}</Text>
+            <Text style={[styles.title, { color: theme.text }]}>{t('freundebuch.title')}</Text>
           </TouchableOpacity>
         </View>
 
         {dailyMessage ? (
-          <View style={styles.complimentCard}>
-            <Text style={styles.complimentText}>{dailyMessage}</Text>
+          <View style={[styles.complimentCard, { backgroundColor: theme.card, borderColor: theme.accent, shadowColor: theme.accent }]}>
+            <Text style={[styles.complimentText, { color: theme.text }]}>{dailyMessage}</Text>
           </View>
         ) : null}
 
         <TouchableOpacity 
           activeOpacity={1} 
           onPress={handleCatTap}
-          style={styles.mainCard}
+          style={[styles.mainCard, { backgroundColor: theme.card, shadowColor: theme.primary }]}
         >
-          <Ionicons name="book-outline" size={100} color="#A78BFA" />
-          <Text style={styles.subtitle}>{t('freundebuch.tagline')}</Text>
+          <Ionicons name="book-outline" size={100} color={theme.primary} />
+          <Text style={[styles.subtitle, { color: theme.text }]}>{t('freundebuch.tagline')}</Text>
         </TouchableOpacity>
 
-        <View style={styles.langContainer}>
-          <TouchableOpacity 
-            style={[styles.langButton, i18n.language === 'de' && styles.langButtonActive]} 
-            onPress={() => changeLanguage('de')}
-          >
-            <Text style={styles.langText}>🇩🇪 DE</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.langButton, i18n.language === 'en' && styles.langButtonActive]} 
-            onPress={() => changeLanguage('en')}
-          >
-            <Text style={styles.langText}>🇺🇸 EN</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.langButton, i18n.language === 'ru' && styles.langButtonActive]} 
-            onPress={() => changeLanguage('ru')}
-          >
-            <Text style={styles.langText}>🇷🇺 RU</Text>
-          </TouchableOpacity>
-        </View>
-
         {isAdmin && (
-          <TouchableOpacity style={styles.helpButton} onPress={handleSOS}>
-            <Text style={styles.helpButtonText}>🆘 {t('common.helpUncle')}</Text>
+          <TouchableOpacity style={[styles.helpButton, { backgroundColor: theme.text }]} onPress={handleSOS}>
+            <Text style={[styles.helpButtonText, { color: theme.card }]}>🆘 {t('common.helpUncle')}</Text>
           </TouchableOpacity>
         )}
       </ScrollView>
@@ -231,7 +202,6 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F6FF', // Soft ivory lavender
   },
   scrollContent: {
     paddingTop: 80,
@@ -244,24 +214,19 @@ const styles = StyleSheet.create({
   },
   welcome: {
     fontSize: 18,
-    color: '#7C7392', // Soft dark grey/purple
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#4A4063', // Deep plum/grey
     textAlign: 'center',
   },
   complimentCard: {
-    backgroundColor: '#FFF5F8', // Very light pink
     padding: 20,
     borderRadius: 20,
     width: '100%',
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#FFD1DC',
     alignItems: 'center',
-    shadowColor: '#FFD1DC',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 5,
@@ -269,18 +234,15 @@ const styles = StyleSheet.create({
   },
   complimentText: {
     fontSize: 16,
-    color: '#8B5E83', // Muted rose
     textAlign: 'center',
     fontWeight: '600',
     fontStyle: 'italic',
   },
   mainCard: {
-    backgroundColor: '#fff',
     width: '100%',
     padding: 40,
     borderRadius: 25,
     alignItems: 'center',
-    shadowColor: '#A78BFA',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 15,
@@ -289,41 +251,16 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    color: '#4A4063',
     marginTop: 20,
     fontWeight: '500',
   },
-  langContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginBottom: 40,
-  },
-  langButton: {
-    backgroundColor: '#E9E3FF',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 12,
-  },
-  langButtonActive: {
-    backgroundColor: '#C3B1E1', // Richer lavender for active
-    borderWidth: 2,
-    borderColor: '#A78BFA',
-  },
-  langText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#4A4063',
-  },
   helpButton: {
-    backgroundColor: '#4A4063',
     padding: 15,
     borderRadius: 15,
     width: '100%',
     alignItems: 'center',
   },
   helpButtonText: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -332,6 +269,5 @@ const styles = StyleSheet.create({
     zIndex: 999,
   },
 });
-
 
 export default HomeScreen;
