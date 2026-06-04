@@ -112,19 +112,33 @@ const QuestionnaireScreen = ({ navigation, route }) => {
         
         <View style={styles.fieldContainer}>
           <Text style={[styles.label, { color: theme.primary }]}>{t('freundebuch.fields.mood')}</Text>
-          <View style={[styles.moodContainer, { backgroundColor: theme.card, borderColor: theme.accent }]}>
-            {['😊', '😎', '🎨', '🐾', '🍦', '🎮'].map((m) => (
-              <TouchableOpacity 
-                key={m} 
-                style={[
-                  styles.moodItem, 
-                  formData.mood === m && [styles.moodSelected, { backgroundColor: theme.accent, borderColor: theme.primary }]
-                ]}
-                onPress={() => setFormData({ ...formData, mood: m })}
-              >
-                <Text style={styles.moodText}>{m}</Text>
-              </TouchableOpacity>
-            ))}
+          <View style={styles.moodScrollWrapper}>
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false} 
+              style={[styles.moodScroll, { backgroundColor: theme.card, borderColor: theme.accent }]}
+              contentContainerStyle={styles.moodScrollContent}
+            >
+              {[
+                '😊', '😎', '🎨', '🐾', '🍦', '🎮', '🦄', '🌈', '✨', '🌸', 
+                '🍬', '🦋', '🐼', '🍕', '🍓', '🎸', '⛸️', '🛹', '🔭', '💌', 
+                '🧸', '👑', '🎀', '🧁', '🐱', '🐶', '🐰', '🦊', '🌻', '🐚'
+              ].map((m) => (
+                <TouchableOpacity 
+                  key={m} 
+                  style={[
+                    styles.moodItem, 
+                    formData.mood === m && [styles.moodSelected, { backgroundColor: theme.accent, borderColor: theme.primary }]
+                  ]}
+                  onPress={() => setFormData({ ...formData, mood: m })}
+                >
+                  <Text style={styles.moodText}>{m}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <View style={[styles.scrollIndicator, { backgroundColor: theme.card + 'CC' }]}>
+              <Ionicons name="chevron-forward" size={16} color={theme.primary} />
+            </View>
           </View>
         </View>
 
@@ -174,24 +188,44 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
   },
-  moodContainer: {
+  moodScrollWrapper: {
+    position: 'relative',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  moodScroll: {
     marginTop: 10,
-    padding: 10,
     borderRadius: 15,
     borderWidth: 1,
+    flex: 1,
+  },
+  scrollIndicator: {
+    position: 'absolute',
+    right: 5,
+    top: 20,
+    width: 24,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopRightRadius: 15,
+    borderBottomRightRadius: 15,
+    pointerEvents: 'none',
+  },
+  moodScrollContent: {
+    padding: 10,
+    flexDirection: 'row',
   },
   moodItem: {
     padding: 10,
     borderRadius: 15,
     backgroundColor: 'transparent',
+    marginRight: 5,
   },
   moodSelected: {
     borderWidth: 1,
   },
   moodText: {
-    fontSize: 24,
+    fontSize: 28,
   },
   saveButton: {
     padding: 18,
