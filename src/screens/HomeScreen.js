@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Alert, Animated, Easing, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Animated, Easing, Dimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { auth } from '../context/firebaseConfig';
@@ -12,8 +12,6 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const HomeScreen = ({ navigation }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [setupTaps, setSetupTaps] = useState(0);
   const [complimentIndex, setComplimentIndex] = useState(-1);
   
   // Easter Egg State
@@ -23,7 +21,7 @@ const HomeScreen = ({ navigation }) => {
   const catPosition = useRef(new Animated.Value(-100)).current;
 
   useEffect(() => {
-    checkAdminStatus();
+    ensureAuth();
     if (complimentIndex === -1) {
       const compliments = t('common.compliments', { returnObjects: true });
       if (Array.isArray(compliments) && compliments.length > 0) {
@@ -32,76 +30,19 @@ const HomeScreen = ({ navigation }) => {
     }
   }, []);
 
-  const dailyMessage = complimentIndex !== -1 
-    ? t(`common.compliments.${complimentIndex}`) 
-    : '';
-
-  const checkAdminStatus = async () => {
+  const ensureAuth = async () => {
     try {
       if (!auth.currentUser) {
         await signInAnonymously(auth);
       }
-      const currentUid = auth.currentUser?.uid;
-      const storedAdminUid = await AsyncStorage.getItem('app_owner_uid');
-      
-      if (currentUid && storedAdminUid && currentUid === storedAdminUid) {
-        setIsAdmin(true);
-      }
     } catch (e) {
-      console.error("Admin check failed", e);
+      console.error("Auth failed", e);
     }
   };
 
-  const handleSOS = async () => {
-    const unclePhoneNumber = process.env.EXPO_PUBLIC_UNCLE_PHONE;
-    
-    if (!unclePhoneNumber) {
-      console.warn("Uncle's phone number is not configured in .env");
-      Alert.alert(t('common.error'), 'Telefonnummer nicht konfiguriert.');
-      return;
-    }
-
-    const message = t('common.sosMessage');
-    const url = `whatsapp://send?phone=${unclePhoneNumber}&text=${encodeURIComponent(message)}`;
-
-    try {
-      const supported = await Linking.canOpenURL(url);
-      if (supported) {
-        await Linking.openURL(url);
-      } else {
-        Alert.alert(t('common.error'), t('common.noWhatsApp'));
-      }
-    } catch (error) {
-      console.error('An error occurred', error);
-      Alert.alert(t('common.error'), 'Ein Fehler ist наступил.');
-    }
-  };
-
-  // Secret backdoor to assign THIS specific phone as the Owner
-  const handleSetupTap = async () => {
-    setSetupTaps(prev => prev + 1);
-    if (setupTaps === 9) {
-      Alert.alert(
-        "Admin Setup",
-        "Möchtest du dieses Gerät als Hauptgerät (Nichte) registrieren?",
-        [
-          { text: "Abbrechen", style: "cancel" },
-          { 
-            text: "Registrieren", 
-            style: "destructive",
-            onPress: async () => {
-              if (auth.currentUser) {
-                await AsyncStorage.setItem('app_owner_uid', auth.currentUser.uid);
-                setIsAdmin(true);
-                Alert.alert("Erfolg", "Dieses Gerät ist nun registriert. SOS-Button ist актив.");
-              }
-            } 
-          }
-        ]
-      );
-      setSetupTaps(0);
-    }
-  };
+  const dailyMessage = complimentIndex !== -1 
+    ? t(`common.compliments.${complimentIndex}`) 
+    : '';
 
   const handleSecretChatAccess = async () => {
     try {
@@ -156,9 +97,9 @@ const HomeScreen = ({ navigation }) => {
     <View style={[styles.container, { backgroundColor: theme.secondary }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <TouchableOpacity activeOpacity={1} onPress={handleSetupTap}>
+          <View>
             <Text style={[styles.welcome, { color: theme.text + '80' }]}>{t('common.welcome')}</Text>
-          </TouchableOpacity>
+          </View>
           <TouchableOpacity 
             onLongPress={handleSecretChatAccess}
             delayLongPress={2000}
@@ -181,12 +122,6 @@ const HomeScreen = ({ navigation }) => {
           <Ionicons name="book-outline" size={100} color={theme.primary} />
           <Text style={[styles.subtitle, { color: theme.text }]}>{t('freundebuch.tagline')}</Text>
         </TouchableOpacity>
-
-        {isAdmin && (
-          <TouchableOpacity style={[styles.helpButton, { backgroundColor: theme.text }]} onPress={handleSOS}>
-            <Text style={[styles.helpButtonText, { color: theme.card }]}>🆘 {t('common.helpUncle')}</Text>
-          </TouchableOpacity>
-        )}
       </ScrollView>
 
       {/* Running Cat Easter Egg */}
@@ -221,7 +156,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   complimentCard: {
-    padding: 25, // Increased padding
+    padding: 25,
     borderRadius: 20,
     width: '100%',
     marginBottom: 20,
@@ -237,7 +172,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '600',
     fontStyle: 'italic',
-    paddingHorizontal: 10, // Extra horizontal padding for the text itself
+    paddingHorizontal: 10,
   },
   mainCard: {
     width: '100%',
@@ -254,16 +189,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginTop: 20,
     fontWeight: '500',
-  },
-  helpButton: {
-    padding: 15,
-    borderRadius: 15,
-    width: '100%',
-    alignItems: 'center',
-  },
-  helpButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   runningCat: {
     position: 'absolute',

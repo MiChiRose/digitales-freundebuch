@@ -1,21 +1,35 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
+import * as Device from 'expo-device';
+import NetInfo from '@react-native-community/netinfo';
+import { db } from '../context/firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
 
 const MyProfileScreen = ({ navigation }) => {
   const { t, i18n } = useTranslation();
   const { theme, changeTheme, themes } = useTheme();
   const [profile, setProfile] = useState(null);
+  const [isOwner, setIsOwner] = useState(false);
+  const [isConnected, setIsConnected] = useState(true);
 
   useFocusEffect(
     useCallback(() => {
       loadProfile();
+      checkOwnerStatus();
     }, [])
   );
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setIsConnected(!!state.isConnected && !!state.isInternetReachable !== false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const loadProfile = async () => {
     try {
@@ -28,8 +42,52 @@ const MyProfileScreen = ({ navigation }) => {
     }
   };
 
+  const checkOwnerStatus = async () => {
+    try {
+      // Get unique installation ID (or fallback to device info)
+      // Note: For real unique ID in Expo, Application.getAndroidId() or similar is better,
+      // but device name/model is a good start for a simple whitelist.
+      const deviceId = Device.deviceName + '_' + Device.modelName;
+      
+      const configRef = doc(db, 'config', 'app_owner');
+      const configSnap = await getDoc(configRef);
+      
+      if (configSnap.exists()) {
+        const ownerIds = configSnap.data().allowed_device_ids || [];
+        if (ownerIds.includes(deviceId)) {
+          setIsOwner(true);
+        }
+      }
+    } catch (e) {
+      console.error("Owner check failed", e);
+    }
+  };
+
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
+  };
+
+  const handleSOS = async () => {
+    const unclePhoneNumber = process.env.EXPO_PUBLIC_UNCLE_PHONE;
+    
+    if (!unclePhoneNumber) {
+      Alert.alert(t('common.error'), 'Telefonnummer nicht konfiguriert.');
+      return;
+    }
+
+    const message = t('common.sosMessage');
+    const url = `whatsapp://send?phone=${unclePhoneNumber}&text=${encodeURIComponent(message)}`;
+
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert(t('common.error'), t('common.noWhatsApp'));
+      }
+    } catch (error) {
+      Alert.alert(t('common.error'), 'Ein Fehler ist наступил.');
+    }
   };
 
   return (
@@ -44,7 +102,7 @@ const MyProfileScreen = ({ navigation }) => {
             <Text style={styles.avatarText}>{profile?.mood || '👤'}</Text>
           </View>
           <Text style={[styles.name, { color: theme.text }]}>{profile?.name || t('freundebuch.yourName')}</Text>
-
+          
           <View style={[styles.infoContainer, { backgroundColor: theme.secondary + '40' }]}>
             <Text style={[styles.infoText, { color: theme.text }]}>🎂 {t('freundebuch.fields.age')}: {profile?.age || '?'}</Text>
             <Text style={[styles.infoText, { color: theme.text }]}>🎨 {t('freundebuch.fields.hobby')}: {profile?.hobby || '?'}</Text>
@@ -52,13 +110,23 @@ const MyProfileScreen = ({ navigation }) => {
             <Text style={[styles.infoText, { color: theme.text }]}>🌈 {t('freundebuch.fields.dream')}: {profile?.dream || '?'}</Text>
           </View>
 
-          <TouchableOpacity
+          <TouchableOpacity 
             style={[styles.editButton, { backgroundColor: theme.primary, shadowColor: theme.primary }]}
             onPress={() => navigation.navigate('Questionnaire', { isMyProfile: true })}
           >
             <Text style={[styles.editButtonText, { color: theme.buttonText }]}>{t('common.edit')}</Text>
           </TouchableOpacity>
         </View>
+
+        {/* SOS Button for Owner only */}
+        {isOwner && isConnected && (
+          <TouchableOpacity 
+            style={[styles.helpButton, { backgroundColor: theme.text }]} 
+            onPress={handleSOS}
+          >
+            <Text style={[styles.helpButtonText, { color: theme.card }]}>🆘 {t('common.helpUncle')}</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Theme Picker */}
         <View style={styles.section}>
@@ -84,39 +152,39 @@ const MyProfileScreen = ({ navigation }) => {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}>{t('common.languageTitle')}</Text>
           <View style={styles.langContainer}>
-            <TouchableOpacity
+            <TouchableOpacity 
               style={[
-                styles.langButton,
+                styles.langButton, 
                 { backgroundColor: theme.accent + '40' },
                 i18n.language === 'de' && [styles.langButtonActive, { backgroundColor: theme.accent, borderColor: theme.primary }]
-              ]}
+              ]} 
               onPress={() => changeLanguage('de')}
             >
               <Text style={[styles.langText, { color: theme.text }]}>🇩🇪 DE</Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            <TouchableOpacity 
               style={[
-                styles.langButton,
+                styles.langButton, 
                 { backgroundColor: theme.accent + '40' },
                 i18n.language === 'en' && [styles.langButtonActive, { backgroundColor: theme.accent, borderColor: theme.primary }]
-              ]}
+              ]} 
               onPress={() => changeLanguage('en')}
             >
               <Text style={[styles.langText, { color: theme.text }]}>🇺🇸 EN</Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            <TouchableOpacity 
               style={[
-                styles.langButton,
+                styles.langButton, 
                 { backgroundColor: theme.accent + '40' },
                 i18n.language === 'ru' && [styles.langButtonActive, { backgroundColor: theme.accent, borderColor: theme.primary }]
-              ]}
+              ]} 
               onPress={() => changeLanguage('ru')}
             >
               <Text style={[styles.langText, { color: theme.text }]}>🇷🇺 RU</Text>
             </TouchableOpacity>
           </View>
         </View>
-
+        
         <View style={{ height: 40 }} />
       </ScrollView>
     </View>
@@ -150,7 +218,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 12,
     elevation: 5,
-    marginBottom: 30,
+    marginBottom: 20,
   },
   avatarPlaceholder: {
     width: 100,
@@ -195,6 +263,19 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  helpButton: {
+    padding: 18,
+    borderRadius: 15,
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 30,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  helpButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
   section: {
     width: '100%',
     marginBottom: 25,
@@ -223,7 +304,6 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: '#FFFFFF',
     transform: [{ scale: 1.1 }],
-    // Shadow settings only for active button
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
