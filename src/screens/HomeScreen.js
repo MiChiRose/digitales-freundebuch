@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Animated, Easing, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Alert, Animated, Easing, Dimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { auth } from '../context/firebaseConfig';
@@ -10,9 +10,10 @@ import { useTheme } from '../context/ThemeContext';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { theme } = useTheme();
   const [complimentIndex, setComplimentIndex] = useState(-1);
+  const [currentSeason, setCurrentSeason] = useState('winter');
   
   // Easter Egg State
   const [catTaps, setCatTaps] = useState(0);
@@ -22,13 +23,8 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     ensureAuth();
-    if (complimentIndex === -1) {
-      const compliments = t('common.compliments', { returnObjects: true });
-      if (Array.isArray(compliments) && compliments.length > 0) {
-        setComplimentIndex(Math.floor(Math.random() * compliments.length));
-      }
-    }
-  }, []);
+    initializeDailyMessage();
+  }, [i18n.language]);
 
   const ensureAuth = async () => {
     try {
@@ -40,9 +36,40 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  const dailyMessage = complimentIndex !== -1 
-    ? t(`common.compliments.${complimentIndex}`) 
-    : '';
+  const getSeason = () => {
+    const month = new Date().getMonth(); // 0-11
+    if (month >= 2 && month <= 4) return 'spring';
+    if (month >= 5 && month <= 7) return 'summer';
+    if (month >= 8 && month <= 10) return 'autumn';
+    return 'winter';
+  };
+
+  const initializeDailyMessage = () => {
+    const season = getSeason();
+    setCurrentSeason(season);
+    
+    if (complimentIndex === -1) {
+      const complimentsData = t('common.compliments', { returnObjects: true });
+      if (complimentsData && complimentsData.general) {
+        const poolSize = complimentsData.general.length + complimentsData[season].length;
+        setComplimentIndex(Math.floor(Math.random() * poolSize));
+      }
+    }
+  };
+
+  const getDailyMessage = () => {
+    if (complimentIndex === -1) return '';
+    
+    const complimentsData = t('common.compliments', { returnObjects: true });
+    const pool = [...complimentsData.general, ...complimentsData[currentSeason]];
+    
+    if (complimentIndex < pool.length) {
+      return pool[complimentIndex];
+    }
+    return pool[0];
+  };
+
+  const dailyMessage = getDailyMessage();
 
   const handleSecretChatAccess = async () => {
     try {
