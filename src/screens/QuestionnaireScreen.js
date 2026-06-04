@@ -34,7 +34,7 @@ const QuestionnaireScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [profileId, isMyProfile]);
 
   const loadData = async () => {
     try {
@@ -50,24 +50,26 @@ const QuestionnaireScreen = ({ navigation, route }) => {
 
   const saveData = async () => {
     try {
-      const storageKey = isMyProfile ? 'my_profile' : `friend_${profileId || Date.now()}`;
+      // Use a consistent ID for new friends if profileId is missing
+      const id = profileId || Date.now().toString();
+      const storageKey = isMyProfile ? 'my_profile' : `friend_${id}`;
       
-      if (!isMyProfile && !profileId) {
+      if (!isMyProfile) {
         const friendsListRaw = await AsyncStorage.getItem('friends_list');
         let friendsList = friendsListRaw ? JSON.parse(friendsListRaw) : [];
-        const newFriend = { id: Date.now().toString(), name: formData.name, mood: formData.mood };
-        friendsList.push(newFriend);
-        await AsyncStorage.setItem('friends_list', JSON.stringify(friendsList));
-      } else if (!isMyProfile && profileId) {
-        const friendsListRaw = await AsyncStorage.getItem('friends_list');
-        if (friendsListRaw) {
-          let friendsList = JSON.parse(friendsListRaw);
+        
+        if (!profileId) {
+          // Add new friend
+          const newFriend = { id, name: formData.name, mood: formData.mood };
+          friendsList.push(newFriend);
+        } else {
+          // Update existing friend
           const index = friendsList.findIndex(f => f.id === profileId);
           if (index !== -1) {
             friendsList[index] = { ...friendsList[index], name: formData.name, mood: formData.mood };
-            await AsyncStorage.setItem('friends_list', JSON.stringify(friendsList));
           }
         }
+        await AsyncStorage.setItem('friends_list', JSON.stringify(friendsList));
       }
 
       await AsyncStorage.setItem(storageKey, JSON.stringify(formData));
@@ -78,13 +80,43 @@ const QuestionnaireScreen = ({ navigation, route }) => {
     }
   };
 
+  const deleteProfile = () => {
+    Alert.alert(
+      t('secretChat.deleteChat'), // Reuse delete chat title or add specific one
+      t('secretChat.deleteConfirm'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        { 
+          text: t('common.error') === 'Fehler' ? 'Löschen' : (t('common.error') === 'Ошибка' ? 'Удалить' : 'Delete'), 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Remove profile data
+              await AsyncStorage.removeItem(`friend_${profileId}`);
+              
+              // Remove from friends list
+              const friendsListRaw = await AsyncStorage.getItem('friends_list');
+              if (friendsListRaw) {
+                let friendsList = JSON.parse(friendsListRaw);
+                const newList = friendsList.filter(f => f.id !== profileId);
+                await AsyncStorage.setItem('friends_list', JSON.stringify(newList));
+              }
+              
+              navigation.goBack();
+            } catch (e) {
+              console.error('Delete error', e);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const scrollRight = () => {
-    // If we're at the very end (threshold reduced to 5), go back to start
     if (currentScrollX.current + 10 >= maxScrollWidth.current) {
       currentScrollX.current = 0;
     } else {
       currentScrollX.current += 200;
-      // Clamp to max width to prevent overshooting
       if (currentScrollX.current > maxScrollWidth.current) {
         currentScrollX.current = maxScrollWidth.current;
       }
@@ -111,13 +143,20 @@ const QuestionnaireScreen = ({ navigation, route }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.accent }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerIcon}>
           <Ionicons name="close" size={30} color={theme.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: theme.text }]}>{t('freundebuch.questionnaire')}</Text>
-        <TouchableOpacity onPress={saveData}>
-          <Ionicons name="checkmark" size={30} color={theme.primary} />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          {!isMyProfile && profileId && (
+            <TouchableOpacity onPress={deleteProfile} style={styles.headerIcon}>
+              <Ionicons name="trash-outline" size={26} color="#ff6b6b" />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={saveData} style={styles.headerIcon}>
+            <Ionicons name="checkmark" size={30} color={theme.primary} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -139,7 +178,6 @@ const QuestionnaireScreen = ({ navigation, route }) => {
                 maxScrollWidth.current = e.nativeEvent.contentSize.width - e.nativeEvent.layoutMeasurement.width;
               }}
               onContentSizeChange={(w, h) => {
-                // Initialize max width when content loads (assuming window width of ~400)
                 maxScrollWidth.current = w - 300;
               }}
               scrollEventThrottle={16}
@@ -195,12 +233,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 60,
     paddingBottom: 20,
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
     borderBottomWidth: 1,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
+    flex: 1,
+    textAlign: 'center',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerIcon: {
+    padding: 5,
   },
   scrollContent: {
     padding: 20,
