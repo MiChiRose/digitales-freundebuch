@@ -21,6 +21,7 @@ const QuestionnaireScreen = ({ navigation, route }) => {
   const { profileId, isMyProfile } = route.params || {};
   const scrollRef = useRef(null);
   const currentScrollX = useRef(0);
+  const maxScrollWidth = useRef(0);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -78,7 +79,11 @@ const QuestionnaireScreen = ({ navigation, route }) => {
   };
 
   const scrollRight = () => {
-    currentScrollX.current += 200;
+    if (currentScrollX.current + 200 >= maxScrollWidth.current - 50) {
+      currentScrollX.current = 0;
+    } else {
+      currentScrollX.current += 200;
+    }
     scrollRef.current?.scrollTo({ x: currentScrollX.current, animated: true });
   };
 
@@ -126,6 +131,11 @@ const QuestionnaireScreen = ({ navigation, route }) => {
               showsHorizontalScrollIndicator={false} 
               onScroll={(e) => {
                 currentScrollX.current = e.nativeEvent.contentOffset.x;
+                maxScrollWidth.current = e.nativeEvent.contentSize.width - e.nativeEvent.layoutMeasurement.width;
+              }}
+              onContentSizeChange={(w, h) => {
+                // Initialize max width when content loads (assuming window width of ~400)
+                maxScrollWidth.current = w - 300;
               }}
               scrollEventThrottle={16}
               style={[styles.moodScroll, { backgroundColor: theme.card, borderColor: theme.accent }]}
