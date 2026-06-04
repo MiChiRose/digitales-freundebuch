@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -19,6 +19,7 @@ const QuestionnaireScreen = ({ navigation, route }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const { profileId, isMyProfile } = route.params || {};
+  const scrollRef = useRef(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -75,6 +76,10 @@ const QuestionnaireScreen = ({ navigation, route }) => {
     }
   };
 
+  const scrollRight = () => {
+    scrollRef.current?.scrollTo({ x: 200, animated: true });
+  };
+
   const renderField = (field, labelKey, placeholderKey) => (
     <View style={styles.fieldContainer}>
       <Text style={[styles.label, { color: theme.primary }]}>{t(`freundebuch.fields.${labelKey}`)}</Text>
@@ -112,8 +117,9 @@ const QuestionnaireScreen = ({ navigation, route }) => {
         
         <View style={styles.fieldContainer}>
           <Text style={[styles.label, { color: theme.primary }]}>{t('freundebuch.fields.mood')}</Text>
-          <View style={styles.moodScrollWrapper}>
+          <View style={styles.moodSection}>
             <ScrollView 
+              ref={scrollRef}
               horizontal 
               showsHorizontalScrollIndicator={false} 
               style={[styles.moodScroll, { backgroundColor: theme.card, borderColor: theme.accent }]}
@@ -136,9 +142,14 @@ const QuestionnaireScreen = ({ navigation, route }) => {
                 </TouchableOpacity>
               ))}
             </ScrollView>
-            <View style={[styles.scrollIndicator, { backgroundColor: theme.card + 'CC' }]}>
-              <Ionicons name="chevron-forward" size={16} color={theme.primary} />
-            </View>
+            
+            <TouchableOpacity 
+              style={[styles.scrollAction, { backgroundColor: theme.primary }]}
+              onPress={scrollRight}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="arrow-forward" size={20} color={theme.buttonText} />
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -188,44 +199,47 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
   },
-  moodScrollWrapper: {
-    position: 'relative',
+  moodSection: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 10,
   },
   moodScroll: {
-    marginTop: 10,
     borderRadius: 15,
     borderWidth: 1,
     flex: 1,
-  },
-  scrollIndicator: {
-    position: 'absolute',
-    right: 5,
-    top: 20,
-    width: 24,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderTopRightRadius: 15,
-    borderBottomRightRadius: 15,
-    pointerEvents: 'none',
+    height: 70,
   },
   moodScrollContent: {
-    padding: 10,
-    flexDirection: 'row',
+    paddingHorizontal: 5,
+    alignItems: 'center',
   },
   moodItem: {
-    padding: 10,
-    borderRadius: 15,
+    padding: 8,
+    borderRadius: 12,
     backgroundColor: 'transparent',
-    marginRight: 5,
+    marginHorizontal: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   moodSelected: {
     borderWidth: 1,
   },
   moodText: {
-    fontSize: 28,
+    fontSize: 32,
+  },
+  scrollAction: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   saveButton: {
     padding: 18,
