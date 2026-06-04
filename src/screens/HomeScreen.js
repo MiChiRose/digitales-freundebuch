@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   complimentCard: {
-    padding: 20,
+    padding: 25, // Increased padding
     borderRadius: 20,
     width: '100%',
     marginBottom: 20,
@@ -237,6 +237,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '600',
     fontStyle: 'italic',
+    paddingHorizontal: 10, // Extra horizontal padding for the text itself
   },
   mainCard: {
     width: '100%',

@@ -79,10 +79,15 @@ const QuestionnaireScreen = ({ navigation, route }) => {
   };
 
   const scrollRight = () => {
-    if (currentScrollX.current + 200 >= maxScrollWidth.current - 50) {
+    // If we're at the very end (threshold reduced to 5), go back to start
+    if (currentScrollX.current + 10 >= maxScrollWidth.current) {
       currentScrollX.current = 0;
     } else {
       currentScrollX.current += 200;
+      // Clamp to max width to prevent overshooting
+      if (currentScrollX.current > maxScrollWidth.current) {
+        currentScrollX.current = maxScrollWidth.current;
+      }
     }
     scrollRef.current?.scrollTo({ x: currentScrollX.current, animated: true });
   };
