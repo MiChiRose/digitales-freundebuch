@@ -17,6 +17,8 @@
     "noWhatsApp": "WhatsApp is not installed!",
     "offlineTitle": "No Internet? No Problem! 🎈",
     "offlineMsg": "You can still see your friends and questionnaires. Everything is saved!",
+    "diagnosticTitle": "System Information",
+    "diagnosticMsg": "Version: 1.0.5\nStatus: Active\nID: {{id}}\n\nThis information is only needed for technical support.",
     "themeTitle": "Pick your favorite color! ✨",
     "languageTitle": "Choose your language 🌍",
     "compliments": [

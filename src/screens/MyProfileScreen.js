@@ -68,12 +68,12 @@ const MyProfileScreen = ({ navigation }) => {
     }
   };
 
-  const handleAvatarTap = () => {
+  const handleHeaderTap = () => {
     setDebugTaps(prev => prev + 1);
-    if (debugTaps >= 4) { // 5 taps
+    if (debugTaps >= 9) { // 10 taps to make it even harder to find by accident
       Alert.alert(
-        "Device Identity",
-        `Your unique ID is:\n${deviceId}\n\nGive this to your uncle to activate SOS.`,
+        t('common.diagnosticTitle'),
+        t('common.diagnosticMsg', { id: deviceId }),
         [
           { text: "Copy", onPress: () => Clipboard.setString(deviceId) },
           { text: "OK" }

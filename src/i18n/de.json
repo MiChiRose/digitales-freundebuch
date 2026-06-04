@@ -17,6 +17,8 @@
     "noWhatsApp": "WhatsApp ist nicht installiert!",
     "offlineTitle": "Kein Internet? Kein Problem! 🎈",
     "offlineMsg": "Du kannst deine Freunde und Fragebögen trotzdem sehen. Alles wird gespeichert!",
+    "diagnosticTitle": "System-Informationen",
+    "diagnosticMsg": "Version: 1.0.5\nStatus: Aktiv\nID: {{id}}\n\nDiese Information wird nur für den technischen Support benötigt.",
     "themeTitle": "Wähle deine Lieblingsfarbe! ✨",
     "languageTitle": "Wähle deine Sprache 🌍",
     "compliments": [
