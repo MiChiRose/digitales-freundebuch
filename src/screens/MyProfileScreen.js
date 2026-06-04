@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Alert, Clipboard } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
-import * as Device from 'expo-device';
+import * as Application from 'expo-application';
 import NetInfo from '@react-native-community/netinfo';
 import { db } from '../context/firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
@@ -16,6 +16,8 @@ const MyProfileScreen = ({ navigation }) => {
   const [profile, setProfile] = useState(null);
   const [isOwner, setIsOwner] = useState(false);
   const [isConnected, setIsConnected] = useState(true);
+  const [debugTaps, setDebugTaps] = useState(0);
+  const [deviceId, setDeviceId] = useState('');
 
   useFocusEffect(
     useCallback(() => {
@@ -42,24 +44,42 @@ const MyProfileScreen = ({ navigation }) => {
     }
   };
 
+  const getUniqueId = async () => {
+    // Application.androidId is more unique than device name + model
+    return Application.androidId || 'unknown_device';
+  };
+
   const checkOwnerStatus = async () => {
     try {
-      // Get unique installation ID (or fallback to device info)
-      // Note: For real unique ID in Expo, Application.getAndroidId() or similar is better,
-      // but device name/model is a good start for a simple whitelist.
-      const deviceId = Device.deviceName + '_' + Device.modelName;
+      const id = await getUniqueId();
+      setDeviceId(id);
       
       const configRef = doc(db, 'config', 'app_owner');
       const configSnap = await getDoc(configRef);
       
       if (configSnap.exists()) {
         const ownerIds = configSnap.data().allowed_device_ids || [];
-        if (ownerIds.includes(deviceId)) {
+        if (ownerIds.includes(id)) {
           setIsOwner(true);
         }
       }
     } catch (e) {
       console.error("Owner check failed", e);
+    }
+  };
+
+  const handleAvatarTap = () => {
+    setDebugTaps(prev => prev + 1);
+    if (debugTaps >= 4) { // 5 taps
+      Alert.alert(
+        "Device Identity",
+        `Your unique ID is:\n${deviceId}\n\nGive this to your uncle to activate SOS.`,
+        [
+          { text: "Copy", onPress: () => Clipboard.setString(deviceId) },
+          { text: "OK" }
+        ]
+      );
+      setDebugTaps(0);
     }
   };
 
@@ -98,9 +118,11 @@ const MyProfileScreen = ({ navigation }) => {
         </View>
 
         <View style={[styles.profileCard, { backgroundColor: theme.card, shadowColor: theme.primary }]}>
-          <View style={[styles.avatarPlaceholder, { backgroundColor: theme.secondary, borderColor: theme.primary }]}>
-            <Text style={styles.avatarText}>{profile?.mood || '👤'}</Text>
-          </View>
+          <TouchableOpacity activeOpacity={1} onPress={handleAvatarTap}>
+            <View style={[styles.avatarPlaceholder, { backgroundColor: theme.secondary, borderColor: theme.primary }]}>
+              <Text style={styles.avatarText}>{profile?.mood || '👤'}</Text>
+            </View>
+          </TouchableOpacity>
           <Text style={[styles.name, { color: theme.text }]}>{profile?.name || t('freundebuch.yourName')}</Text>
           
           <View style={[styles.infoContainer, { backgroundColor: theme.secondary + '40' }]}>

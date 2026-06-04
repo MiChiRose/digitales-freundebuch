@@ -12,6 +12,7 @@
     "@react-navigation/stack": "^7.9.3",
     "dotenv": "^17.4.2",
     "expo": "~56.0.8",
+    "expo-application": "~56.0.3",
     "expo-constants": "^56.0.16",
     "expo-device": "^56.0.4",
     "expo-font": "^56.0.5",
