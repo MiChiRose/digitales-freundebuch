@@ -44,7 +44,7 @@ const ChatScreen = ({ route, navigation }) => {
   const flatListRef = React.useRef();
 
   useEffect(() => {
-    let unsubscribeMessages = () => {};
+    let unsubscribeMessages = null;
     
     const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       if (user) {
@@ -69,6 +69,11 @@ const ChatScreen = ({ route, navigation }) => {
     };
 
     const startListeningMessages = () => {
+      // Clean up previous listener if it exists
+      if (unsubscribeMessages) {
+        unsubscribeMessages();
+      }
+
       const q = query(
         collection(db, "secret_messages"), 
         where("roomCode", "==", roomCode),
@@ -107,7 +112,9 @@ const ChatScreen = ({ route, navigation }) => {
 
     return () => {
       unsubscribeAuth();
-      unsubscribeMessages();
+      if (unsubscribeMessages) {
+        unsubscribeMessages();
+      }
     };
   }, [roomCode]);
 

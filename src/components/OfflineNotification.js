@@ -26,8 +26,9 @@ const OfflineNotification = () => {
 
   const showNotification = () => {
     setVisible(true);
+    const statusBarHeight = Constants.statusBarHeight || 0;
     Animated.spring(slideAnim, {
-      toValue: Constants.statusBarHeight + 10,
+      toValue: statusBarHeight + 10,
       useNativeDriver: true,
       tension: 20,
       friction: 7
