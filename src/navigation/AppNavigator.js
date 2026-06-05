@@ -40,11 +40,11 @@ const TabNavigator = () => {
             </View>
           );
         },
-        tabBarActiveTintColor: theme.primary,
-        tabBarInactiveTintColor: theme.text + '80',
+        tabBarActiveTintColor: theme?.primary,
+        tabBarInactiveTintColor: theme?.text + '80',
         tabBarStyle: {
-          backgroundColor: theme.card,
-          borderTopColor: theme.accent,
+          backgroundColor: theme?.card,
+          borderTopColor: theme?.accent,
         },
         headerShown: false,
       })}

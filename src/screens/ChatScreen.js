@@ -60,7 +60,7 @@ const ChatScreen = ({ route, navigation }) => {
       try {
         const roomRef = doc(db, 'secret_rooms', roomCode);
         const roomSnap = await getDoc(roomRef);
-        if (roomSnap.exists() && roomSnap.data().creator === uid) {
+        if (roomSnap.exists() && roomSnap.data()?.creator === uid) {
           setIsCreator(true);
         }
       } catch (e) {
@@ -74,6 +74,8 @@ const ChatScreen = ({ route, navigation }) => {
         unsubscribeMessages();
       }
 
+      if (!db) return;
+
       const q = query(
         collection(db, "secret_messages"), 
         where("roomCode", "==", roomCode),
@@ -83,10 +85,10 @@ const ChatScreen = ({ route, navigation }) => {
 
       unsubscribeMessages = onSnapshot(q, (querySnapshot) => {
         const msgs = [];
-        querySnapshot.forEach((doc) => {
+        querySnapshot?.forEach((doc) => {
           const data = doc.data();
           let timeStr = '...';
-          if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+          if (data?.createdAt && typeof data?.createdAt?.toDate === 'function') {
             timeStr = data.createdAt.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
           }
           msgs.push({ id: doc.id, ...data, time: timeStr });
@@ -101,17 +103,21 @@ const ChatScreen = ({ route, navigation }) => {
     };
 
     const loadProfileName = async () => {
-      const myData = await AsyncStorage.getItem('my_profile');
-      if (myData) {
-        const parsed = JSON.parse(myData);
-        if (parsed.name) setUserName(parsed.name);
+      try {
+        const myData = await AsyncStorage.getItem('my_profile');
+        if (myData) {
+          const parsed = JSON.parse(myData);
+          if (parsed?.name) setUserName(parsed.name);
+        }
+      } catch (e) {
+        console.error("Load profile name error", e);
       }
     };
 
     loadProfileName();
 
     return () => {
-      unsubscribeAuth();
+      unsubscribeAuth?.();
       if (unsubscribeMessages) {
         unsubscribeMessages();
       }
@@ -129,13 +135,14 @@ const ChatScreen = ({ route, navigation }) => {
           style: 'destructive',
           onPress: async () => {
             try {
+              if (!db) return;
               await deleteDoc(doc(db, 'secret_rooms', roomCode));
               const q = query(collection(db, 'secret_messages'), where('roomCode', '==', roomCode));
               const snap = await getDocs(q);
-              snap.forEach(async (msgDoc) => {
+              snap?.forEach(async (msgDoc) => {
                 await deleteDoc(doc(db, 'secret_messages', msgDoc.id));
               });
-              navigation.goBack();
+              navigation?.goBack();
             } catch (e) {
               console.error("Delete room error", e);
             }
@@ -150,10 +157,11 @@ const ChatScreen = ({ route, navigation }) => {
       const textToSend = message;
       setMessage('');
       try {
+        if (!db) return;
         await addDoc(collection(db, "secret_messages"), {
           text: textToSend,
           sender: userName,
-          senderId: auth.currentUser?.uid || 'unknown',
+          senderId: auth?.currentUser?.uid || 'unknown',
           roomCode: roomCode,
           createdAt: serverTimestamp(),
         });
@@ -164,20 +172,20 @@ const ChatScreen = ({ route, navigation }) => {
   };
 
   const renderItem = ({ item }) => {
-    const isMe = item.senderId === currentUserId;
+    const isMe = item?.senderId === currentUserId;
     return (
       <View style={[
         styles.messageBubble, 
-        isMe ? [styles.myMessage, { backgroundColor: theme.primary }] : [styles.theirMessage, { backgroundColor: theme.card, borderColor: theme.accent }]
+        isMe ? [styles.myMessage, { backgroundColor: theme?.primary }] : [styles.theirMessage, { backgroundColor: theme?.card, borderColor: theme?.accent }]
       ]}>
-        <Text style={[styles.senderName, { color: isMe ? theme.buttonText + 'CC' : theme.text + '80' }]}>
-          {isMe ? t('secretChat.me') : item.sender}
+        <Text style={[styles.senderName, { color: isMe ? (theme?.buttonText + 'CC') : (theme?.text + '80') }]}>
+          {isMe ? t('secretChat.me') : (item?.sender || 'Anonymous')}
         </Text>
-        <Text style={isMe ? [styles.myMessageText, { color: theme.buttonText }] : [styles.messageText, { color: theme.text }]}>
-          {item.text}
+        <Text style={isMe ? [styles.myMessageText, { color: theme?.buttonText }] : [styles.messageText, { color: theme?.text }]}>
+          {item?.text}
         </Text>
-        <Text style={[styles.messageTime, { color: isMe ? theme.buttonText + '99' : theme.text + '60' }]}>
-          {item.time}
+        <Text style={[styles.messageTime, { color: isMe ? (theme?.buttonText + '99') : (theme?.text + '60') }]}>
+          {item?.time}
         </Text>
       </View>
     );

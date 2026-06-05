@@ -72,7 +72,7 @@ export const ThemeProvider = ({ children }) => {
     try {
       const savedThemeId = await AsyncStorage.getItem('app_theme');
       if (savedThemeId) {
-        const theme = themes.find(t => t.id === savedThemeId);
+        const theme = themes?.find(t => t?.id === savedThemeId);
         if (theme) setCurrentTheme(theme);
       }
     } catch (e) {
@@ -81,7 +81,7 @@ export const ThemeProvider = ({ children }) => {
   };
 
   const changeTheme = async (themeId) => {
-    const theme = themes.find(t => t.id === themeId);
+    const theme = themes?.find(t => t?.id === themeId);
     if (theme) {
       setCurrentTheme(theme);
       try {

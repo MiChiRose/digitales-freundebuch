@@ -50,11 +50,12 @@ const MyProfileScreen = ({ navigation }) => {
       const id = await Application.getAndroidId();
       setDeviceId(id);
       
+      if (!db) return;
       const configRef = doc(db, 'config', 'app_owner');
       const configSnap = await getDoc(configRef);
       
       if (configSnap.exists()) {
-        const ownerIds = configSnap.data().allowed_device_ids || [];
+        const ownerIds = configSnap.data()?.allowed_device_ids || [];
         if (ownerIds.includes(id)) {
           setIsOwner(true);
         }
@@ -69,9 +70,9 @@ const MyProfileScreen = ({ navigation }) => {
     if (debugTaps >= 9) { // 10 taps total
       Alert.alert(
         t('common.diagnosticTitle'),
-        t('common.diagnosticMsg', { id: deviceId }),
+        t('common.diagnosticMsg', { id: deviceId || 'Unknown' }),
         [
-          { text: "Copy", onPress: () => Clipboard.setStringAsync(deviceId) },
+          { text: "Copy", onPress: () => Clipboard.setStringAsync(deviceId || '') },
           { text: "OK" }
         ]
       );
@@ -80,11 +81,11 @@ const MyProfileScreen = ({ navigation }) => {
   };
 
   const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
+    i18n?.changeLanguage?.(lng);
   };
 
   const handleSOS = async () => {
-    const unclePhoneNumber = process.env.EXPO_PUBLIC_UNCLE_PHONE;
+    const unclePhoneNumber = process?.env?.EXPO_PUBLIC_UNCLE_PHONE;
     
     if (!unclePhoneNumber) {
       Alert.alert(t('common.error'), 'Telefonnummer nicht konfiguriert.');
@@ -102,65 +103,65 @@ const MyProfileScreen = ({ navigation }) => {
         Alert.alert(t('common.error'), t('common.noWhatsApp'));
       }
     } catch (error) {
-      Alert.alert(t('common.error'), 'Ein Fehler ist наступил.');
+      Alert.alert(t('common.error'), 'Ein Fehler ist aufgetreten.');
     }
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.secondary }]}>
+    <View style={[styles.container, { backgroundColor: theme?.secondary }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <TouchableOpacity activeOpacity={1} onPress={handleHeaderTap}>
-            <Text style={[styles.headerTitle, { color: theme.text }]}>{t('freundebuch.myProfile')}</Text>
+            <Text style={[styles.headerTitle, { color: theme?.text }]}>{t('freundebuch.myProfile')}</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.profileCard, { backgroundColor: theme.card, shadowColor: theme.primary }]}>
-          <View style={[styles.avatarPlaceholder, { backgroundColor: theme.secondary, borderColor: theme.primary }]}>
+        <View style={[styles.profileCard, { backgroundColor: theme?.card, shadowColor: theme?.primary }]}>
+          <View style={[styles.avatarPlaceholder, { backgroundColor: theme?.secondary, borderColor: theme?.primary }]}>
             <Text style={styles.avatarText}>{profile?.mood || '👤'}</Text>
           </View>
-          <Text style={[styles.name, { color: theme.text }]}>{profile?.name || t('freundebuch.yourName')}</Text>
+          <Text style={[styles.name, { color: theme?.text }]}>{profile?.name || t('freundebuch.yourName')}</Text>
           
-          <View style={[styles.infoContainer, { backgroundColor: theme.secondary + '40' }]}>
-            <Text style={[styles.infoText, { color: theme.text }]}>🎂 {t('freundebuch.fields.age')}: {profile?.age || '?'}</Text>
-            <Text style={[styles.infoText, { color: theme.text }]}>🎨 {t('freundebuch.fields.hobby')}: {profile?.hobby || '?'}</Text>
-            <Text style={[styles.infoText, { color: theme.text }]}>🍕 {t('freundebuch.fields.food')}: {profile?.food || '?'}</Text>
-            <Text style={[styles.infoText, { color: theme.text }]}>🌈 {t('freundebuch.fields.dream')}: {profile?.dream || '?'}</Text>
+          <View style={[styles.infoContainer, { backgroundColor: theme?.secondary + '40' }]}>
+            <Text style={[styles.infoText, { color: theme?.text }]}>🎂 {t('freundebuch.fields.age')}: {profile?.age || '?'}</Text>
+            <Text style={[styles.infoText, { color: theme?.text }]}>🎨 {t('freundebuch.fields.hobby')}: {profile?.hobby || '?'}</Text>
+            <Text style={[styles.infoText, { color: theme?.text }]}>🍕 {t('freundebuch.fields.food')}: {profile?.food || '?'}</Text>
+            <Text style={[styles.infoText, { color: theme?.text }]}>🌈 {t('freundebuch.fields.dream')}: {profile?.dream || '?'}</Text>
           </View>
 
           <TouchableOpacity 
-            style={[styles.editButton, { backgroundColor: theme.primary, shadowColor: theme.primary }]}
-            onPress={() => navigation.navigate('Questionnaire', { isMyProfile: true })}
+            style={[styles.editButton, { backgroundColor: theme?.primary, shadowColor: theme?.primary }]}
+            onPress={() => navigation?.navigate('Questionnaire', { isMyProfile: true })}
           >
-            <Text style={[styles.editButtonText, { color: theme.buttonText }]}>{t('common.edit')}</Text>
+            <Text style={[styles.editButtonText, { color: theme?.buttonText }]}>{t('common.edit')}</Text>
           </TouchableOpacity>
         </View>
 
         {/* SOS Button for Owner only */}
         {isOwner && isConnected && (
           <TouchableOpacity 
-            style={[styles.helpButton, { backgroundColor: theme.text }]} 
+            style={[styles.helpButton, { backgroundColor: theme?.text }]} 
             onPress={handleSOS}
           >
-            <Text style={[styles.helpButtonText, { color: theme.card }]}>🆘 {t('common.helpUncle')}</Text>
+            <Text style={[styles.helpButtonText, { color: theme?.card }]}>🆘 {t('common.helpUncle')}</Text>
           </TouchableOpacity>
         )}
 
         {/* Theme Picker */}
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>{t('common.themeTitle')}</Text>
+          <Text style={[styles.sectionTitle, { color: theme?.text }]}>{t('common.themeTitle')}</Text>
           <View style={styles.themeContainer}>
-            {themes.map((t) => (
+            {themes?.map((t) => (
               <TouchableOpacity
-                key={t.id}
+                key={t?.id}
                 style={[
                   styles.themeButton,
-                  { backgroundColor: t.primary },
-                  theme.id === t.id && styles.themeButtonActive
+                  { backgroundColor: t?.primary },
+                  theme?.id === t?.id && styles.themeButtonActive
                 ]}
-                onPress={() => changeTheme(t.id)}
+                onPress={() => changeTheme?.(t?.id)}
               >
-                <Text style={styles.themeIcon}>{t.icon}</Text>
+                <Text style={styles.themeIcon}>{t?.icon}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -168,37 +169,37 @@ const MyProfileScreen = ({ navigation }) => {
 
         {/* Language Picker */}
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>{t('common.languageTitle')}</Text>
+          <Text style={[styles.sectionTitle, { color: theme?.text }]}>{t('common.languageTitle')}</Text>
           <View style={styles.langContainer}>
             <TouchableOpacity 
               style={[
                 styles.langButton, 
-                { backgroundColor: theme.accent + '40' },
-                i18n.language === 'de' && [styles.langButtonActive, { backgroundColor: theme.accent, borderColor: theme.primary }]
+                { backgroundColor: theme?.accent + '40' },
+                i18n?.language === 'de' && [styles.langButtonActive, { backgroundColor: theme?.accent, borderColor: theme?.primary }]
               ]} 
               onPress={() => changeLanguage('de')}
             >
-              <Text style={[styles.langText, { color: theme.text }]}>🇩🇪 DE</Text>
+              <Text style={[styles.langText, { color: theme?.text }]}>🇩🇪 DE</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[
                 styles.langButton, 
-                { backgroundColor: theme.accent + '40' },
-                i18n.language === 'en' && [styles.langButtonActive, { backgroundColor: theme.accent, borderColor: theme.primary }]
+                { backgroundColor: theme?.accent + '40' },
+                i18n?.language === 'en' && [styles.langButtonActive, { backgroundColor: theme?.accent, borderColor: theme?.primary }]
               ]} 
               onPress={() => changeLanguage('en')}
             >
-              <Text style={[styles.langText, { color: theme.text }]}>🇺🇸 EN</Text>
+              <Text style={[styles.langText, { color: theme?.text }]}>🇺🇸 EN</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[
                 styles.langButton, 
-                { backgroundColor: theme.accent + '40' },
-                i18n.language === 'ru' && [styles.langButtonActive, { backgroundColor: theme.accent, borderColor: theme.primary }]
+                { backgroundColor: theme?.accent + '40' },
+                i18n?.language === 'ru' && [styles.langButtonActive, { backgroundColor: theme?.accent, borderColor: theme?.primary }]
               ]} 
               onPress={() => changeLanguage('ru')}
             >
-              <Text style={[styles.langText, { color: theme.text }]}>🇷🇺 RU</Text>
+              <Text style={[styles.langText, { color: theme?.text }]}>🇷🇺 RU</Text>
             </TouchableOpacity>
           </View>
         </View>

@@ -41,7 +41,8 @@ const QuestionnaireScreen = ({ navigation, route }) => {
       const storageKey = isMyProfile ? 'my_profile' : `friend_${profileId}`;
       const savedData = await AsyncStorage.getItem(storageKey);
       if (savedData) {
-        setFormData(JSON.parse(savedData));
+        const parsed = JSON.parse(savedData);
+        if (parsed) setFormData(prev => ({ ...prev, ...parsed }));
       }
     } catch (e) {
       console.error('Failed to load profile', e);
@@ -56,36 +57,42 @@ const QuestionnaireScreen = ({ navigation, route }) => {
       
       if (!isMyProfile) {
         const friendsListRaw = await AsyncStorage.getItem('friends_list');
-        let friendsList = friendsListRaw ? JSON.parse(friendsListRaw) : [];
+        let friendsList = [];
+        try {
+          friendsList = friendsListRaw ? JSON.parse(friendsListRaw) : [];
+          if (!Array.isArray(friendsList)) friendsList = [];
+        } catch (e) {
+          friendsList = [];
+        }
         
         if (!profileId) {
           // Add new friend
-          const newFriend = { id, name: formData.name, mood: formData.mood };
+          const newFriend = { id, name: formData?.name || '', mood: formData?.mood || '😊' };
           friendsList.push(newFriend);
         } else {
           // Update existing friend
-          const index = friendsList.findIndex(f => f.id === profileId);
+          const index = friendsList.findIndex(f => f?.id === profileId);
           if (index !== -1) {
-            friendsList[index] = { ...friendsList[index], name: formData.name, mood: formData.mood };
+            friendsList[index] = { ...friendsList[index], name: formData?.name || '', mood: formData?.mood || '😊' };
           }
         }
         await AsyncStorage.setItem('friends_list', JSON.stringify(friendsList));
       }
 
       await AsyncStorage.setItem(storageKey, JSON.stringify(formData));
-      Alert.alert(t('common.save'), t('common.done'));
-      navigation.goBack();
+      Alert.alert(t('common.save') || 'Save', t('common.done') || 'Done');
+      navigation?.goBack();
     } catch (e) {
-      Alert.alert(t('common.error'), t('common.saveError'));
+      Alert.alert(t('common.error') || 'Error', t('common.saveError') || 'Save failed');
     }
   };
 
   const deleteProfile = () => {
     Alert.alert(
-      t('secretChat.deleteChat'), // Reuse delete chat title or add specific one
-      t('secretChat.deleteConfirm'),
+      t('secretChat.deleteChat') || 'Delete', 
+      t('secretChat.deleteConfirm') || 'Confirm?',
       [
-        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('common.cancel') || 'Cancel', style: 'cancel' },
         { 
           text: t('common.error') === 'Fehler' ? 'Löschen' : (t('common.error') === 'Ошибка' ? 'Удалить' : 'Delete'), 
           style: 'destructive',
@@ -97,12 +104,18 @@ const QuestionnaireScreen = ({ navigation, route }) => {
               // Remove from friends list
               const friendsListRaw = await AsyncStorage.getItem('friends_list');
               if (friendsListRaw) {
-                let friendsList = JSON.parse(friendsListRaw);
-                const newList = friendsList.filter(f => f.id !== profileId);
+                let friendsList = [];
+                try {
+                  friendsList = JSON.parse(friendsListRaw);
+                  if (!Array.isArray(friendsList)) friendsList = [];
+                } catch (e) {
+                  friendsList = [];
+                }
+                const newList = friendsList.filter(f => f?.id !== profileId);
                 await AsyncStorage.setItem('friends_list', JSON.stringify(newList));
               }
               
-              navigation.goBack();
+              navigation?.goBack();
             } catch (e) {
               console.error('Delete error', e);
             }
@@ -113,12 +126,12 @@ const QuestionnaireScreen = ({ navigation, route }) => {
   };
 
   const scrollRight = () => {
-    if (currentScrollX.current + 10 >= maxScrollWidth.current) {
+    if ((currentScrollX.current || 0) + 10 >= (maxScrollWidth.current || 0)) {
       currentScrollX.current = 0;
     } else {
-      currentScrollX.current += 200;
-      if (currentScrollX.current > maxScrollWidth.current) {
-        currentScrollX.current = maxScrollWidth.current;
+      currentScrollX.current = (currentScrollX.current || 0) + 200;
+      if (currentScrollX.current > (maxScrollWidth.current || 0)) {
+        currentScrollX.current = maxScrollWidth.current || 0;
       }
     }
     scrollRef.current?.scrollTo({ x: currentScrollX.current, animated: true });
@@ -126,27 +139,27 @@ const QuestionnaireScreen = ({ navigation, route }) => {
 
   const renderField = (field, labelKey, placeholderKey) => (
     <View style={styles.fieldContainer}>
-      <Text style={[styles.label, { color: theme.primary }]}>{t(`freundebuch.fields.${labelKey}`)}</Text>
+      <Text style={[styles.label, { color: theme?.primary }]}>{t(`freundebuch.fields.${labelKey}`)}</Text>
       <TextInput
-        style={[styles.input, { backgroundColor: theme.card, color: theme.text, borderColor: theme.accent }]}
-        value={formData[field]}
+        style={[styles.input, { backgroundColor: theme?.card, color: theme?.text, borderColor: theme?.accent }]}
+        value={formData?.[field] || ''}
         onChangeText={(text) => setFormData({ ...formData, [field]: text })}
         placeholder={t(`freundebuch.placeholders.${placeholderKey}`)}
-        placeholderTextColor={theme.text + '60'}
+        placeholderTextColor={theme?.text + '60'}
       />
     </View>
   );
 
   return (
     <KeyboardAvoidingView 
-      style={[styles.container, { backgroundColor: theme.secondary }]}
+      style={[styles.container, { backgroundColor: theme?.secondary }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.accent }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerIcon}>
-          <Ionicons name="close" size={30} color={theme.text} />
+      <View style={[styles.header, { backgroundColor: theme?.card, borderBottomColor: theme?.accent }]}>
+        <TouchableOpacity onPress={() => navigation?.goBack()} style={styles.headerIcon}>
+          <Ionicons name="close" size={30} color={theme?.text} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: theme.text }]}>{t('freundebuch.questionnaire')}</Text>
+        <Text style={[styles.headerTitle, { color: theme?.text }]}>{t('freundebuch.questionnaire')}</Text>
         <View style={styles.headerActions}>
           {!isMyProfile && profileId && (
             <TouchableOpacity onPress={deleteProfile} style={styles.headerIcon}>
@@ -154,7 +167,7 @@ const QuestionnaireScreen = ({ navigation, route }) => {
             </TouchableOpacity>
           )}
           <TouchableOpacity onPress={saveData} style={styles.headerIcon}>
-            <Ionicons name="checkmark" size={30} color={theme.primary} />
+            <Ionicons name="checkmark" size={30} color={theme?.primary} />
           </TouchableOpacity>
         </View>
       </View>
@@ -167,21 +180,21 @@ const QuestionnaireScreen = ({ navigation, route }) => {
         {renderField('dream', 'dream', 'dream')}
         
         <View style={styles.fieldContainer}>
-          <Text style={[styles.label, { color: theme.primary }]}>{t('freundebuch.fields.mood')}</Text>
+          <Text style={[styles.label, { color: theme?.primary }]}>{t('freundebuch.fields.mood')}</Text>
           <View style={styles.moodSection}>
             <ScrollView 
               ref={scrollRef}
               horizontal 
               showsHorizontalScrollIndicator={false} 
               onScroll={(e) => {
-                currentScrollX.current = e.nativeEvent.contentOffset.x;
-                maxScrollWidth.current = e.nativeEvent.contentSize.width - e.nativeEvent.layoutMeasurement.width;
+                currentScrollX.current = e.nativeEvent?.contentOffset?.x || 0;
+                maxScrollWidth.current = (e.nativeEvent?.contentSize?.width || 0) - (e.nativeEvent?.layoutMeasurement?.width || 0);
               }}
               onContentSizeChange={(w, h) => {
-                maxScrollWidth.current = w - 300;
+                maxScrollWidth.current = (w || 0) - 300;
               }}
               scrollEventThrottle={16}
-              style={[styles.moodScroll, { backgroundColor: theme.card, borderColor: theme.accent }]}
+              style={[styles.moodScroll, { backgroundColor: theme?.card, borderColor: theme?.accent }]}
               contentContainerStyle={styles.moodScrollContent}
             >
               {[
@@ -193,7 +206,7 @@ const QuestionnaireScreen = ({ navigation, route }) => {
                   key={m} 
                   style={[
                     styles.moodItem, 
-                    formData.mood === m && [styles.moodSelected, { backgroundColor: theme.accent, borderColor: theme.primary }]
+                    formData?.mood === m && [styles.moodSelected, { backgroundColor: theme?.accent, borderColor: theme?.primary }]
                   ]}
                   onPress={() => setFormData({ ...formData, mood: m })}
                 >
@@ -203,20 +216,20 @@ const QuestionnaireScreen = ({ navigation, route }) => {
             </ScrollView>
             
             <TouchableOpacity 
-              style={[styles.scrollAction, { backgroundColor: theme.primary }]}
+              style={[styles.scrollAction, { backgroundColor: theme?.primary }]}
               onPress={scrollRight}
               activeOpacity={0.7}
             >
-              <Ionicons name="arrow-forward" size={20} color={theme.buttonText} />
+              <Ionicons name="arrow-forward" size={20} color={theme?.buttonText} />
             </TouchableOpacity>
           </View>
         </View>
 
         <TouchableOpacity 
-          style={[styles.saveButton, { backgroundColor: theme.primary, shadowColor: theme.primary }]} 
+          style={[styles.saveButton, { backgroundColor: theme?.primary, shadowColor: theme?.primary }]} 
           onPress={saveData}
         >
-          <Text style={[styles.saveButtonText, { color: theme.buttonText }]}>{t('common.save')}</Text>
+          <Text style={[styles.saveButtonText, { color: theme?.buttonText }]}>{t('common.save')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>

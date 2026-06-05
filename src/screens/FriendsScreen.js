@@ -21,7 +21,8 @@ const FriendsScreen = ({ navigation }) => {
     try {
       const savedFriends = await AsyncStorage.getItem('friends_list');
       if (savedFriends) {
-        setFriends(JSON.parse(savedFriends));
+        const parsed = JSON.parse(savedFriends);
+        setFriends(Array.isArray(parsed) ? parsed : []);
       }
     } catch (e) {
       console.error('Failed to load friends list', e);
@@ -33,8 +34,8 @@ const FriendsScreen = ({ navigation }) => {
       const myData = await AsyncStorage.getItem('my_profile');
       if (myData) {
         const parsed = JSON.parse(myData);
-        if (parsed.name && parsed.age && parsed.hobby && parsed.food && parsed.dream) {
-          navigation.navigate('Questionnaire', { isMyProfile: false });
+        if (parsed?.name && parsed?.age && parsed?.hobby && parsed?.food && parsed?.dream) {
+          navigation?.navigate('Questionnaire', { isMyProfile: false });
           return;
         }
       }
@@ -44,7 +45,7 @@ const FriendsScreen = ({ navigation }) => {
         t('secretChat.profileRequiredMsg'),
         [
           { text: t('common.cancel'), style: 'cancel' },
-          { text: t('common.edit'), onPress: () => navigation.navigate('Questionnaire', { isMyProfile: true }) }
+          { text: t('common.edit'), onPress: () => navigation?.navigate('Questionnaire', { isMyProfile: true }) }
         ]
       );
     } catch (e) {
@@ -54,35 +55,35 @@ const FriendsScreen = ({ navigation }) => {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity 
-      style={[styles.friendCard, { backgroundColor: theme.card, shadowColor: theme.primary }]}
-      onPress={() => navigation.navigate('Questionnaire', { profileId: item.id, isMyProfile: false })}
+      style={[styles.friendCard, { backgroundColor: theme?.card, shadowColor: theme?.primary }]}
+      onPress={() => navigation?.navigate('Questionnaire', { profileId: item?.id, isMyProfile: false })}
     >
-      <Text style={styles.friendEmoji}>{item.mood}</Text>
-      <Text style={[styles.friendName, { color: theme.text }]}>{item.name || t('common.noName')}</Text>
-      <Ionicons name="chevron-forward" size={20} color={theme.accent} />
+      <Text style={styles.friendEmoji}>{item?.mood || '👤'}</Text>
+      <Text style={[styles.friendName, { color: theme?.text }]}>{item?.name || t('common.noName')}</Text>
+      <Ionicons name="chevron-forward" size={20} color={theme?.accent} />
     </TouchableOpacity>
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.secondary }]}>
-      <Text style={[styles.headerTitle, { color: theme.text }]}>{t('freundebuch.friends')}</Text>
+    <View style={[styles.container, { backgroundColor: theme?.secondary }]}>
+      <Text style={[styles.headerTitle, { color: theme?.text }]}>{t('freundebuch.friends')}</Text>
       <FlatList
         data={friends}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item?.id?.toString() || Math.random().toString()}
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={[styles.emptyText, { color: theme.text + '80' }]}>{t('common.emptyFriends')}</Text>
-            <Text style={[styles.emptySubtext, { color: theme.text + '60' }]}>{t('common.addFriendHint')}</Text>
+            <Text style={[styles.emptyText, { color: theme?.text + '80' }]}>{t('common.emptyFriends')}</Text>
+            <Text style={[styles.emptySubtext, { color: theme?.text + '60' }]}>{t('common.addFriendHint')}</Text>
           </View>
         }
       />
       <TouchableOpacity 
-        style={[styles.addButton, { backgroundColor: theme.primary, shadowColor: theme.primary }]}
+        style={[styles.addButton, { backgroundColor: theme?.primary, shadowColor: theme?.primary }]}
         onPress={handleAddFriend}
       >
-        <Ionicons name="add" size={30} color={theme.buttonText} />
+        <Ionicons name="add" size={30} color={theme?.buttonText} />
       </TouchableOpacity>
     </View>
   );

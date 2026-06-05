@@ -51,8 +51,12 @@ const HomeScreen = ({ navigation }) => {
     if (complimentIndex === -1) {
       const complimentsData = t('common.compliments', { returnObjects: true });
       if (complimentsData && complimentsData.general) {
-        const poolSize = complimentsData.general.length + complimentsData[season].length;
-        setComplimentIndex(Math.floor(Math.random() * poolSize));
+        const generalPool = complimentsData.general || [];
+        const seasonPool = complimentsData[season] || [];
+        const poolSize = generalPool.length + seasonPool.length;
+        if (poolSize > 0) {
+          setComplimentIndex(Math.floor(Math.random() * poolSize));
+        }
       }
     }
   };
@@ -61,12 +65,14 @@ const HomeScreen = ({ navigation }) => {
     if (complimentIndex === -1) return '';
     
     const complimentsData = t('common.compliments', { returnObjects: true });
-    const pool = [...complimentsData.general, ...complimentsData[currentSeason]];
+    if (!complimentsData) return '';
     
-    if (complimentIndex < pool.length) {
+    const pool = [...(complimentsData.general || []), ...(complimentsData[currentSeason] || [])];
+    
+    if (pool.length > 0 && complimentIndex < pool.length) {
       return pool[complimentIndex];
     }
-    return pool[0];
+    return pool[0] || '';
   };
 
   const dailyMessage = getDailyMessage();
@@ -76,7 +82,7 @@ const HomeScreen = ({ navigation }) => {
       const myData = await AsyncStorage.getItem('my_profile');
       if (myData) {
         const parsed = JSON.parse(myData);
-        if (parsed.name && parsed.age && parsed.hobby && parsed.food && parsed.dream) {
+        if (parsed?.name && parsed?.age && parsed?.hobby && parsed?.food && parsed?.dream) {
           navigation.navigate('SecretUnlock');
           return;
         }
@@ -87,7 +93,7 @@ const HomeScreen = ({ navigation }) => {
         t('secretChat.profileRequiredMsg'),
         [
           { text: t('common.cancel'), style: 'cancel' },
-          { text: t('common.edit'), onPress: () => navigation.navigate('Questionnaire', { isMyProfile: true }) }
+          { text: t('common.edit'), onPress: () => navigation?.navigate('Questionnaire', { isMyProfile: true }) }
         ]
       );
     } catch (e) {

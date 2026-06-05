@@ -14,14 +14,17 @@ const SecretUnlockScreen = ({ navigation }) => {
   const [isChecking, setIsChecking] = useState(false);
 
   const handleUnlock = async () => {
-    if (code.length === 4) {
+    if (code?.length === 4) {
       setIsChecking(true);
       try {
-        if (!auth.currentUser) {
+        if (!auth?.currentUser) {
           await signInAnonymously(auth);
         }
         
-        const myUid = auth.currentUser.uid;
+        const myUid = auth?.currentUser?.uid;
+        if (!myUid) throw new Error("No user UID");
+
+        if (!db) return;
 
         const roomsQuery = query(
           collection(db, 'secret_rooms'),
@@ -30,7 +33,7 @@ const SecretUnlockScreen = ({ navigation }) => {
         const myRoomsSnap = await getDocs(roomsQuery);
         
         let existingRoomId = null;
-        myRoomsSnap.forEach((doc) => {
+        myRoomsSnap?.forEach((doc) => {
           if (doc.id !== code) {
             existingRoomId = doc.id;
           }
@@ -50,22 +53,22 @@ const SecretUnlockScreen = ({ navigation }) => {
           await setDoc(roomRef, { participants: [myUid], creator: myUid });
           const currentCode = code;
           setCode('');
-          navigation.replace('SecretChat', { roomCode: currentCode });
+          navigation?.replace('SecretChat', { roomCode: currentCode });
         } else {
           const data = roomSnap.data();
-          const participants = data.participants || [];
+          const participants = data?.participants || [];
 
           if (participants.includes(myUid)) {
             const currentCode = code;
             setCode('');
-            navigation.replace('SecretChat', { roomCode: currentCode });
+            navigation?.replace('SecretChat', { roomCode: currentCode });
           } else if (participants.length < 2) {
             await updateDoc(roomRef, {
               participants: arrayUnion(myUid)
             });
             const currentCode = code;
             setCode('');
-            navigation.replace('SecretChat', { roomCode: currentCode });
+            navigation?.replace('SecretChat', { roomCode: currentCode });
           } else {
             Alert.alert(t('common.error') || 'Error', t('secretChat.roomFull'));
             setCode('');
@@ -84,39 +87,39 @@ const SecretUnlockScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.secondary }]}>
+    <View style={[styles.container, { backgroundColor: theme?.secondary }]}>
       <TouchableOpacity 
         style={styles.backButton} 
-        onPress={() => navigation.goBack()}
+        onPress={() => navigation?.goBack()}
         disabled={isChecking}
       >
-        <Ionicons name="arrow-back" size={24} color={theme.text} />
+        <Ionicons name="arrow-back" size={24} color={theme?.text} />
       </TouchableOpacity>
 
-      <Ionicons name="lock-closed" size={80} color={theme.primary} style={styles.icon} />
-      <Text style={[styles.title, { color: theme.text }]}>{t('secretChat.enterCode')}</Text>
+      <Ionicons name="lock-closed" size={80} color={theme?.primary} style={styles.icon} />
+      <Text style={[styles.title, { color: theme?.text }]}>{t('secretChat.enterCode')}</Text>
       
       <TextInput
-        style={[styles.input, { backgroundColor: theme.card, borderColor: theme.accent, color: theme.text }]}
+        style={[styles.input, { backgroundColor: theme?.card, borderColor: theme?.accent, color: theme?.text }]}
         value={code}
         onChangeText={setCode}
         keyboardType="numeric"
         secureTextEntry
         placeholder="****"
-        placeholderTextColor={theme.text + '60'}
+        placeholderTextColor={theme?.text + '60'}
         maxLength={4}
         editable={!isChecking}
       />
 
       <TouchableOpacity 
-        style={[styles.button, { backgroundColor: theme.primary, shadowColor: theme.primary }, isChecking && styles.buttonDisabled]} 
+        style={[styles.button, { backgroundColor: theme?.primary, shadowColor: theme?.primary }, isChecking && styles.buttonDisabled]} 
         onPress={handleUnlock}
         disabled={isChecking}
       >
         {isChecking ? (
-          <ActivityIndicator color={theme.buttonText} />
+          <ActivityIndicator color={theme?.buttonText} />
         ) : (
-          <Text style={[styles.buttonText, { color: theme.buttonText }]}>{t('secretChat.unlock')}</Text>
+          <Text style={[styles.buttonText, { color: theme?.buttonText }]}>{t('secretChat.unlock')}</Text>
         )}
       </TouchableOpacity>
     </View>
