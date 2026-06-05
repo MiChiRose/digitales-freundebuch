@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
@@ -11,6 +11,33 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID
 };
 
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-export const auth = getAuth(app);
+let app;
+let isInitialized = false;
+
+try {
+  if (getApps().length === 0) {
+    if (firebaseConfig.apiKey) {
+      app = initializeApp(firebaseConfig);
+      isInitialized = true;
+    } else {
+      console.warn("Firebase API Key is missing. Check your EXPO_PUBLIC_FIREBASE_API_KEY environment variable.");
+    }
+  } else {
+    app = getApp();
+    isInitialized = true;
+  }
+} catch (error) {
+  console.error("Firebase initialization failed:", error);
+}
+
+// Export db and auth with safety checks
+export const db = isInitialized ? getFirestore(app) : { 
+  collection: () => ({ doc: () => ({ get: () => Promise.resolve({ exists: () => false }) }) }),
+  doc: () => ({ get: () => Promise.resolve({ exists: () => false }) }) 
+};
+
+export const auth = isInitialized ? getAuth(app) : {
+  currentUser: null,
+  onAuthStateChanged: (cb) => { cb(null); return () => {}; },
+  signInAnonymously: () => Promise.reject("Firebase not initialized")
+};
