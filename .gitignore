@@ -35,4 +35,3 @@ android/
 
 # Firebase (if you download the service account key)
 serviceAccountKey.json
-src/context/firebaseConfig.js
