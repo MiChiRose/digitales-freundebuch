@@ -46,6 +46,11 @@ const ChatScreen = ({ route, navigation }) => {
   useEffect(() => {
     let unsubscribeMessages = null;
     
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
+
     const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       if (user) {
         setCurrentUserId(user.uid);
@@ -58,6 +63,7 @@ const ChatScreen = ({ route, navigation }) => {
 
     const checkIfCreator = async (uid) => {
       try {
+        if (!db) return;
         const roomRef = doc(db, 'secret_rooms', roomCode);
         const roomSnap = await getDoc(roomRef);
         if (roomSnap.exists() && roomSnap.data()?.creator === uid) {

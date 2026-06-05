@@ -50,7 +50,7 @@ const MyProfileScreen = ({ navigation }) => {
       const id = await Application.getAndroidId();
       setDeviceId(id);
       
-      if (!db) return;
+      if (!db || !id) return;
       const configRef = doc(db, 'config', 'app_owner');
       const configSnap = await getDoc(configRef);
       

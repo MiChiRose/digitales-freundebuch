@@ -31,13 +31,6 @@ try {
 }
 
 // Export db and auth with safety checks
-export const db = isInitialized ? getFirestore(app) : { 
-  collection: () => ({ doc: () => ({ get: () => Promise.resolve({ exists: () => false }) }) }),
-  doc: () => ({ get: () => Promise.resolve({ exists: () => false }) }) 
-};
+export const db = isInitialized ? getFirestore(app) : null;
+export const auth = isInitialized ? getAuth(app) : null;
 
-export const auth = isInitialized ? getAuth(app) : {
-  currentUser: null,
-  onAuthStateChanged: (cb) => { cb(null); return () => {}; },
-  signInAnonymously: () => Promise.reject("Firebase not initialized")
-};

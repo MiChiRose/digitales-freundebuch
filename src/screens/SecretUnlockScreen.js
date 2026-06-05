@@ -17,14 +17,24 @@ const SecretUnlockScreen = ({ navigation }) => {
     if (code?.length === 4) {
       setIsChecking(true);
       try {
-        if (!auth?.currentUser) {
+        if (!auth) {
+          Alert.alert(t('common.error') || 'Error', 'Firebase not initialized');
+          setIsChecking(false);
+          return;
+        }
+
+        if (!auth.currentUser) {
           await signInAnonymously(auth);
         }
         
         const myUid = auth?.currentUser?.uid;
         if (!myUid) throw new Error("No user UID");
 
-        if (!db) return;
+        if (!db) {
+          Alert.alert(t('common.error') || 'Error', 'Database not initialized');
+          setIsChecking(false);
+          return;
+        }
 
         const roomsQuery = query(
           collection(db, 'secret_rooms'),

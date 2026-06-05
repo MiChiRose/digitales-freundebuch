@@ -28,7 +28,7 @@ const HomeScreen = ({ navigation }) => {
 
   const ensureAuth = async () => {
     try {
-      if (!auth.currentUser) {
+      if (auth && !auth.currentUser) {
         await signInAnonymously(auth);
       }
     } catch (e) {
