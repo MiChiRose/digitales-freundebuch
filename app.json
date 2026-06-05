@@ -7,14 +7,16 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yurasf.digitalesfreundebuch"
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/icon.png"
       },
-      "package": "com.yurasf.digitalesfreundebuch"
+      "package": "com.yurasf.digitalesfreundebuch",
+      "ndkVersion": "26.1.10909125"
     },
     "web": {
       "favicon": "./assets/favicon.png"
