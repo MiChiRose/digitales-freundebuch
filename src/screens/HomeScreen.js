@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Alert, Animated, Easing, useWindowDimensions } from 'react-native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Animated, Easing, AppState, useWindowDimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { auth } from '../context/firebaseConfig';
@@ -22,18 +22,26 @@ const HomeScreen = ({ navigation }) => {
   const [runtimeConfig, setRuntimeConfig] = useState(DEFAULT_RUNTIME_CONFIG);
   
   // Easter Egg State
-  const [catTaps, setCatTaps] = useState(0);
   const [isCatRunning, setIsCatRunning] = useState(false);
   const [catVerticalPos, setCatVerticalPos] = useState('40%');
-  const [seasonalTaps, setSeasonalTaps] = useState(0);
   const [isSeasonalEggVisible, setIsSeasonalEggVisible] = useState(false);
   const [seasonalVerticalPos, setSeasonalVerticalPos] = useState('32%');
   const catPosition = useRef(new Animated.Value(-100)).current;
   const seasonalAnimation = useRef(new Animated.Value(0)).current;
   const mainCardScale = useRef(new Animated.Value(1)).current;
+  const catTapsRef = useRef(0);
+  const seasonalTapsRef = useRef(0);
+  const isMountedRef = useRef(true);
 
   const seasonalEgg = runtimeConfig?.featureFlags?.seasonalEasterEgg || DEFAULT_RUNTIME_CONFIG.featureFlags.seasonalEasterEgg;
   const seasonalEggActive = isSeasonalEasterEggActive(runtimeConfig, i18n.language);
+
+  const refreshRuntimeConfig = useCallback(async () => {
+    const config = await loadRuntimeConfig();
+    if (isMountedRef.current) {
+      setRuntimeConfig(config);
+    }
+  }, []);
 
   useEffect(() => {
     ensureAuth();
@@ -41,21 +49,25 @@ const HomeScreen = ({ navigation }) => {
   }, [i18n.language]);
 
   useEffect(() => {
-    let isMounted = true;
+    isMountedRef.current = true;
+    refreshRuntimeConfig();
 
-    loadRuntimeConfig().then((config) => {
-      if (isMounted) {
-        setRuntimeConfig(config);
+    const unsubscribeFocus = navigation?.addListener?.('focus', refreshRuntimeConfig);
+    const appStateSubscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        refreshRuntimeConfig();
       }
     });
 
     return () => {
-      isMounted = false;
+      isMountedRef.current = false;
+      unsubscribeFocus?.();
+      appStateSubscription.remove();
       catPosition.stopAnimation();
       seasonalAnimation.stopAnimation();
       mainCardScale.stopAnimation();
     };
-  }, [catPosition, mainCardScale, seasonalAnimation]);
+  }, [catPosition, mainCardScale, navigation, refreshRuntimeConfig, seasonalAnimation]);
 
   const ensureAuth = async () => {
     try {
@@ -147,12 +159,12 @@ const HomeScreen = ({ navigation }) => {
   const tryRunSeasonalEgg = async (nextTaps) => {
     if (!seasonalEggActive || isSeasonalEggVisible) return;
 
-    const triggerTapCount = seasonalEgg?.triggerTapCount || 7;
+    const triggerTapCount = Number(seasonalEgg?.triggerTapCount) || 7;
     if (nextTaps < triggerTapCount) return;
 
-    setSeasonalTaps(0);
+    seasonalTapsRef.current = 0;
 
-    const maxRunsPerDay = seasonalEgg?.maxRunsPerDay || 1;
+    const maxRunsPerDay = Number(seasonalEgg?.maxRunsPerDay) || 1;
     const runKey = getSeasonalEggRunKey(seasonalEgg);
     const currentRuns = Number(await AsyncStorage.getItem(runKey)) || 0;
 
@@ -180,16 +192,14 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const handleCatTap = async () => {
-    const newSeasonalTaps = seasonalTaps + 1;
-    setSeasonalTaps(newSeasonalTaps);
-    tryRunSeasonalEgg(newSeasonalTaps).catch(console.error);
+    seasonalTapsRef.current += 1;
+    tryRunSeasonalEgg(seasonalTapsRef.current).catch(console.error);
 
     if (runtimeConfig?.featureFlags?.localCatEasterEggEnabled === false) return;
     if (isCatRunning) return;
-    const newTaps = catTaps + 1;
-    setCatTaps(newTaps);
-    if (newTaps >= 10) {
-      setCatTaps(0);
+    catTapsRef.current += 1;
+    if (catTapsRef.current >= 10) {
+      catTapsRef.current = 0;
       runCatAnimation();
     }
   };
@@ -379,7 +389,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    zIndex: 998,
+    zIndex: 1000,
+    elevation: 12,
     alignItems: 'center',
   },
   seasonalEggText: {
