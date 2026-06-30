@@ -35,11 +35,6 @@ export default function App() {
   const [appIsReady, setAppIsReady] = useState(false);
 
   useEffect(() => {
-    // Heartbeat to check if JS thread is alive
-    const heartbeat = setInterval(() => {
-      console.log(`[HEARTBEAT] ${new Date().toLocaleTimeString()} - App is alive`);
-    }, 10000);
-
     async function prepare() {
       try {
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -51,8 +46,6 @@ export default function App() {
     }
 
     prepare();
-
-    return () => clearInterval(heartbeat);
   }, []);
 
   const onLayoutRootView = React.useCallback(async () => {
