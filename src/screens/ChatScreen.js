@@ -44,30 +44,29 @@ const ChatScreen = ({ route, navigation }) => {
   const flatListRef = React.useRef();
 
   useEffect(() => {
+    let isMounted = true;
+    let scrollTimeout = null;
     let unsubscribeMessages = null;
-    
+
     if (!auth) {
       setLoading(false);
       return;
     }
 
-    const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        setCurrentUserId(user.uid);
-        checkIfCreator(user.uid);
-        startListeningMessages();
-      } else {
-        signInAnonymously(auth).catch(console.error);
+    const clearScrollTimeout = () => {
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = null;
       }
-    });
+    };
 
     const checkIfCreator = async (uid) => {
       try {
         if (!db) return;
         const roomRef = doc(db, 'secret_rooms', roomCode);
         const roomSnap = await getDoc(roomRef);
-        if (roomSnap.exists() && roomSnap.data()?.creator === uid) {
-          setIsCreator(true);
+        if (isMounted) {
+          setIsCreator(roomSnap.exists() && roomSnap.data()?.creator === uid);
         }
       } catch (e) {
         console.error("Creator check error", e);
@@ -75,12 +74,14 @@ const ChatScreen = ({ route, navigation }) => {
     };
 
     const startListeningMessages = () => {
-      // Clean up previous listener if it exists
       if (unsubscribeMessages) {
-        unsubscribeMessages();
+        return;
       }
 
-      if (!db) return;
+      if (!db) {
+        setLoading(false);
+        return;
+      }
 
       const q = query(
         collection(db, "secret_messages"), 
@@ -90,6 +91,8 @@ const ChatScreen = ({ route, navigation }) => {
       );
 
       unsubscribeMessages = onSnapshot(q, (querySnapshot) => {
+        if (!isMounted) return;
+
         const msgs = [];
         querySnapshot?.forEach((doc) => {
           const data = doc.data();
@@ -101,8 +104,14 @@ const ChatScreen = ({ route, navigation }) => {
         });
         setMessages(msgs);
         setLoading(false);
-        setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 200);
+        clearScrollTimeout();
+        scrollTimeout = setTimeout(() => {
+          if (isMounted) {
+            flatListRef.current?.scrollToEnd({ animated: true });
+          }
+        }, 200);
       }, (error) => {
+        if (!isMounted) return;
         console.error("Snapshot error:", error);
         setLoading(false);
       });
@@ -111,6 +120,7 @@ const ChatScreen = ({ route, navigation }) => {
     const loadProfileName = async () => {
       try {
         const myData = await AsyncStorage.getItem('my_profile');
+        if (!isMounted) return;
         if (myData) {
           const parsed = JSON.parse(myData);
           if (parsed?.name) setUserName(parsed.name);
@@ -120,12 +130,27 @@ const ChatScreen = ({ route, navigation }) => {
       }
     };
 
+    const unsubscribeAuth = auth.onAuthStateChanged((user) => {
+      if (!isMounted) return;
+
+      if (user) {
+        setCurrentUserId(user.uid);
+        checkIfCreator(user.uid);
+        startListeningMessages();
+      } else {
+        signInAnonymously(auth).catch(console.error);
+      }
+    });
+
     loadProfileName();
 
     return () => {
+      isMounted = false;
       unsubscribeAuth?.();
+      clearScrollTimeout();
       if (unsubscribeMessages) {
         unsubscribeMessages();
+        unsubscribeMessages = null;
       }
     };
   }, [roomCode]);
@@ -164,13 +189,13 @@ const ChatScreen = ({ route, navigation }) => {
       setMessage('');
       try {
         if (!db) return;
-        await addDoc(collection(db, "secret_messages"), {
+        addDoc(collection(db, "secret_messages"), {
           text: textToSend,
           sender: userName,
           senderId: auth?.currentUser?.uid || 'unknown',
           roomCode: roomCode,
           createdAt: serverTimestamp(),
-        });
+        }).catch((e) => console.error("Send error", e));
       } catch (e) {
         console.error("Send error", e);
       }
@@ -228,6 +253,10 @@ const ChatScreen = ({ route, navigation }) => {
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.chatList}
+          initialNumToRender={20}
+          maxToRenderPerBatch={20}
+          windowSize={5}
+          removeClippedSubviews
           onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
           ListEmptyComponent={
             <View style={styles.emptyChat}>

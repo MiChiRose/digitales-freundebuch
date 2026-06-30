@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { initializeFirestore, getFirestore, memoryLocalCache } from 'firebase/firestore';
+import * as FirebaseAuth from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -12,7 +13,17 @@ const firebaseConfig = {
 };
 
 let app;
+let authInstance = null;
+let dbInstance = null;
 let isInitialized = false;
+
+const getAuthPersistence = () => {
+  if (typeof FirebaseAuth.getReactNativePersistence === 'function') {
+    return FirebaseAuth.getReactNativePersistence(AsyncStorage);
+  }
+
+  return FirebaseAuth.inMemoryPersistence;
+};
 
 try {
   // Check if at least the essential keys are present
@@ -24,6 +35,23 @@ try {
       app = getApp();
       isInitialized = true;
     }
+
+    try {
+      authInstance = FirebaseAuth.initializeAuth(app, {
+        persistence: getAuthPersistence(),
+      });
+    } catch (error) {
+      authInstance = FirebaseAuth.getAuth(app);
+    }
+
+    try {
+      dbInstance = initializeFirestore(app, {
+        localCache: memoryLocalCache(),
+        experimentalForceLongPolling: true,
+      });
+    } catch (error) {
+      dbInstance = getFirestore(app);
+    }
   } else {
     console.error("CRITICAL: Firebase configuration is missing! Check environment variables.");
   }
@@ -32,5 +60,5 @@ try {
 }
 
 // Export db and auth with safety checks
-export const db = isInitialized ? getFirestore(app) : null;
-export const auth = isInitialized ? getAuth(app) : null;
+export const db = isInitialized ? dbInstance : null;
+export const auth = isInitialized ? authInstance : null;
