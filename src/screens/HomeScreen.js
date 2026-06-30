@@ -36,15 +36,25 @@ const HomeScreen = ({ navigation }) => {
   const seasonalEgg = runtimeConfig?.featureFlags?.seasonalEasterEgg || DEFAULT_RUNTIME_CONFIG.featureFlags.seasonalEasterEgg;
   const seasonalEggActive = isSeasonalEasterEggActive(runtimeConfig, i18n.language);
 
+  const ensureAuth = useCallback(async () => {
+    try {
+      if (auth && !auth.currentUser) {
+        await signInAnonymously(auth);
+      }
+    } catch (e) {
+      console.error("Auth failed", e);
+    }
+  }, []);
+
   const refreshRuntimeConfig = useCallback(async () => {
+    await ensureAuth();
     const config = await loadRuntimeConfig();
     if (isMountedRef.current) {
       setRuntimeConfig(config);
     }
-  }, []);
+  }, [ensureAuth]);
 
   useEffect(() => {
-    ensureAuth();
     initializeDailyMessage();
   }, [i18n.language]);
 
@@ -68,16 +78,6 @@ const HomeScreen = ({ navigation }) => {
       mainCardScale.stopAnimation();
     };
   }, [catPosition, mainCardScale, navigation, refreshRuntimeConfig, seasonalAnimation]);
-
-  const ensureAuth = async () => {
-    try {
-      if (auth && !auth.currentUser) {
-        await signInAnonymously(auth);
-      }
-    } catch (e) {
-      console.error("Auth failed", e);
-    }
-  };
 
   const getSeason = () => {
     const month = new Date().getMonth(); // 0-11
