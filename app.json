@@ -15,16 +15,10 @@
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/icon.png"
       },
-      "package": "com.yurasf.digitalesfreundebuch",
-      "ndkVersion": "26.1.10909125"
+      "package": "com.yurasf.digitalesfreundebuch"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#F8F6FF"
     },
     "extra": {
       "eas": {
@@ -32,7 +26,15 @@
       }
     },
     "plugins": [
-      "expo-splash-screen"
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#F8F6FF"
+        }
+      ],
+      "expo-font"
     ]
   }
 }
