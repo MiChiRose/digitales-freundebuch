@@ -70,7 +70,7 @@ const FriendsScreen = ({ navigation }) => {
       <FlatList
         data={friends}
         renderItem={renderItem}
-        keyExtractor={(item) => item?.id?.toString() || Math.random().toString()}
+        keyExtractor={(item, index) => item?.id?.toString() || `friend-${index}`}
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>

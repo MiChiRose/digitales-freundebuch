@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ActivityInd
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { db, auth } from '../context/firebaseConfig';
-import { doc, getDoc, setDoc, updateDoc, arrayUnion, query, collection, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, arrayUnion, query, collection, where, getDocs, serverTimestamp } from 'firebase/firestore';
 import { signInAnonymously } from 'firebase/auth';
 import { useTheme } from '../context/ThemeContext';
 
@@ -60,7 +60,14 @@ const SecretUnlockScreen = ({ navigation }) => {
         const roomSnap = await getDoc(roomRef);
 
         if (!roomSnap.exists()) {
-          await setDoc(roomRef, { participants: [myUid], creator: myUid });
+          await setDoc(roomRef, {
+            participants: [myUid],
+            creator: myUid,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+            schemaVersion: 1,
+            status: 'active',
+          });
           const currentCode = code;
           setCode('');
           navigation?.replace('SecretChat', { roomCode: currentCode });
@@ -74,7 +81,8 @@ const SecretUnlockScreen = ({ navigation }) => {
             navigation?.replace('SecretChat', { roomCode: currentCode });
           } else if (participants.length < 2) {
             await updateDoc(roomRef, {
-              participants: arrayUnion(myUid)
+              participants: arrayUnion(myUid),
+              updatedAt: serverTimestamp(),
             });
             const currentCode = code;
             setCode('');

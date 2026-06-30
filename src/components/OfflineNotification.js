@@ -4,9 +4,11 @@ import NetInfo from '@react-native-community/netinfo';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
+import { useTheme } from '../context/ThemeContext';
 
 const OfflineNotification = () => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const [visible, setVisible] = useState(false);
   const slideAnim = React.useRef(new Animated.Value(-200)).current;
 
@@ -47,17 +49,27 @@ const OfflineNotification = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Animated.View style={[styles.container, { transform: [{ translateY: slideAnim }] }]}>
+      <Animated.View
+        style={[
+          styles.container,
+          {
+            backgroundColor: theme?.card,
+            borderColor: theme?.accent,
+            shadowColor: theme?.primary,
+            transform: [{ translateY: slideAnim }],
+          }
+        ]}
+      >
         <View style={styles.content}>
-          <View style={styles.iconContainer}>
-            <Ionicons name="cloud-offline-outline" size={24} color="#4A4063" />
+          <View style={[styles.iconContainer, { backgroundColor: theme?.secondary }]}>
+            <Ionicons name="cloud-offline-outline" size={24} color={theme?.text} />
           </View>
           <View style={styles.textContainer}>
-            <Text style={styles.title}>{t('common.offlineTitle')}</Text>
-            <Text style={styles.message}>{t('common.offlineMsg')}</Text>
+            <Text style={[styles.title, { color: theme?.text }]}>{t('common.offlineTitle')}</Text>
+            <Text style={[styles.message, { color: theme?.text + '99' }]}>{t('common.offlineMsg')}</Text>
           </View>
           <TouchableOpacity onPress={hideNotification} style={styles.closeButton}>
-            <Ionicons name="close" size={20} color="#7C7392" />
+            <Ionicons name="close" size={20} color={theme?.text + '99'} />
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -75,18 +87,15 @@ const styles = StyleSheet.create({
   },
   container: {
     marginHorizontal: 15,
-    backgroundColor: '#fff',
     borderRadius: 20,
     padding: 15,
     // iOS shadow
-    shadowColor: '#A78BFA',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     // Android shadow
     elevation: 10,
     borderWidth: 1,
-    borderColor: '#E9E3FF',
   },
   content: {
     flexDirection: 'row',
@@ -107,12 +116,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#4A4063',
     marginBottom: 2,
   },
   message: {
     fontSize: 13,
-    color: '#7C7392',
     lineHeight: 18,
   },
   closeButton: {
