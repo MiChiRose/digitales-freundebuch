@@ -21,6 +21,7 @@
     "diagnosticMsg": "Version: 1.0.5\nStatus: Active\nID: {{id}}\n\nThis information is only needed for technical support.",
     "themeTitle": "Pick your favorite color! ✨",
     "languageTitle": "Choose your language 🌍",
+    "stickerOfDay": "Sticker of the day",
     "compliments": {
       "general": [
         "You look adorable today! ✨",
@@ -124,6 +125,18 @@
     "deleteChat": "Delete Chat",
     "deleteConfirm": "Do you really want to delete this chat forever?",
     "profileRequired": "Profile Incomplete",
-    "profileRequiredMsg": "Please fill out your profile completely before chatting or adding friends!"
+    "profileRequiredMsg": "Please fill out your profile completely before chatting or adding friends!",
+    "safety": {
+      "title": "Oops, kind words only",
+      "kindWords": "Ai ai ai, we don't use words like that here. The message was removed.",
+      "personalInfo": "Please don't share links, phone numbers, or email addresses in the chat.",
+      "unsafeTopic": "That topic is not safe for this chat. Let's write something kinder.",
+      "tooLong": "That message is a bit too long. Please keep it under {{count}} characters.",
+      "tooFast": "Tiny pause! You can send the next message in {{seconds}} seconds.",
+      "chatDisabled": "The secret chat is taking a little safety break right now.",
+      "breakTitle": "Time for a kindness break",
+      "breakMessage": "Good friends use good words. Take a small pause and come back in {{seconds}} seconds.",
+      "countdown": "{{seconds}}s"
+    }
   }
 }

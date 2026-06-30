@@ -21,6 +21,7 @@
     "diagnosticMsg": "Version: 1.0.5\nStatus: Aktiv\nID: {{id}}\n\nDiese Information wird nur für den technischen Support benötigt.",
     "themeTitle": "Wähle deine Lieblingsfarbe! ✨",
     "languageTitle": "Wähle deine Sprache 🌍",
+    "stickerOfDay": "Sticker des Tages",
     "compliments": {
       "general": [
         "Du siehst heute bezaubernd aus! ✨",
@@ -124,6 +125,18 @@
     "deleteChat": "Chat löschen",
     "deleteConfirm": "Willst du diesen Chat wirklich für immer löschen?",
     "profileRequired": "Profil unvollständig",
-    "profileRequiredMsg": "Bitte fülle zuerst dein Profil aus, bevor du chatten oder Freunde hinzufügen kannst!"
+    "profileRequiredMsg": "Bitte fülle zuerst dein Profil aus, bevor du chatten oder Freunde hinzufügen kannst!",
+    "safety": {
+      "title": "Hoppla, bitte liebe Worte",
+      "kindWords": "Ei ei ei, solche Wörter benutzen wir hier nicht. Die Nachricht wurde entfernt.",
+      "personalInfo": "Bitte teile keine Links, Telefonnummern oder E-Mail-Adressen im Chat.",
+      "unsafeTopic": "Dieses Thema ist für diesen Chat nicht sicher. Schreib lieber etwas Nettes.",
+      "tooLong": "Die Nachricht ist etwas zu lang. Bitte bleib unter {{count}} Zeichen.",
+      "tooFast": "Mini-Pause! Du kannst die nächste Nachricht in {{seconds}} Sekunden senden.",
+      "chatDisabled": "Der geheime Chat macht gerade eine kleine Sicherheits-Pause.",
+      "breakTitle": "Zeit für eine Freundlichkeits-Pause",
+      "breakMessage": "Gute Freundinnen benutzen gute Worte. Mach kurz Pause und komm in {{seconds}} Sekunden zurück.",
+      "countdown": "{{seconds}}s"
+    }
   }
 }
